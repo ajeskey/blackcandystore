@@ -5,9 +5,12 @@
   <hr>
 
   <% if flash[:invite_code].present? %>
-    <div class='c-form__field'>
+    <div class='c-form__field' data-controller='clipboard' data-clipboard-success-message-value='<%= t("button.copied") %>'>
       <%= label_tag :generated_invite_code, t("label.invite_code") %>
-      <%= text_field_tag :generated_invite_code, flash[:invite_code], readonly: true, class: "c-input", autocomplete: "off", onclick: "this.select()" %>
+      <div class='o-flex o-flex--align-center'>
+        <%= text_field_tag :generated_invite_code, flash[:invite_code], readonly: true, class: "c-input", autocomplete: "off", data: { clipboard_target: "source", action: "click->clipboard#copy" } %>
+        <button type='button' class='c-button u-ml-tiny' data-clipboard-target='button' data-action='clipboard#copy'><%= t("button.copy") %></button>
+      </div>
       <small><%= t("text.invite_code_generated") %></small>
     </div>
     <hr>
@@ -59,7 +62,7 @@
             </small>
           </span>
           <% unless grant.status == "revoked" %>
-            <%= button_to t("button.revoke"), access_grant_path(grant), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("text.confirm_revoke_grant") } } do %>
+            <%= button_to access_grant_path(grant), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("text.confirm_revoke_grant") } } do %>
               <%= icon_tag "delete", size: "small", title: t("button.revoke") %>
             <% end %>
           <% end %>

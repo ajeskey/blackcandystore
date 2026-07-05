@@ -44,4 +44,22 @@ class SettingsUiTest < ActionDispatch::IntegrationTest
     assert Setting.enable_daap
     assert Setting.enable_rsp
   end
+
+  test "an admin can configure the server base URL from settings" do
+    login(users(:admin))
+
+    patch setting_path, params: { setting: { server_base_url: "https://music.example.com" } }
+
+    assert_redirected_to setting_path
+    assert_equal "https://music.example.com", Setting.server_base_url
+  end
+
+  test "the settings page shows the server base URL field" do
+    login(users(:admin))
+
+    get setting_path
+
+    assert_response :success
+    assert_select "input[name=?]", "setting[server_base_url]"
+  end
 end

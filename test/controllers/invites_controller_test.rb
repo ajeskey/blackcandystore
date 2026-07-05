@@ -29,6 +29,19 @@ class InvitesControllerTest < ActionDispatch::IntegrationTest
     assert AccessGrant.last.authenticate_token(decoded[:secret_token])
   end
 
+  test "invite encodes the configured server base URL setting (Req 4.3)" do
+    Setting.update(server_base_url: "https://share.example.com")
+
+    post invites_url,
+      params: { library_id: @library.id },
+      as: :json,
+      headers: api_token_header(@owner)
+
+    assert_response :created
+    decoded = InviteManager.decode(@response.parsed_body["invite_code"])
+    assert_equal "https://share.example.com", decoded[:server_base_url]
+  end
+
   test "create honors an in-range expires_in (Req 4.5)" do
     freeze_time do
       post invites_url,

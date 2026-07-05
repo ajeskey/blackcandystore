@@ -14,9 +14,16 @@ class Setting < ApplicationRecord
   has_setting :enable_daap, type: :boolean, default: false
   has_setting :enable_rsp, type: :boolean, default: false
 
+  # The Server's public base URL (hostname/IP + scheme + optional port) encoded
+  # into every Invite_Code so a redeeming Server knows how to reach this one
+  # (Req 4.3). Configurable at runtime here; falls back to the SERVER_BASE_URL
+  # env config when unset, so existing env-based deployments keep working.
+  has_setting :server_base_url, default: proc { BlackCandy.config.server_base_url }
+
   validates :transcode_bitrate, inclusion: { in: AVAILABLE_BITRATE_OPTIONS }, allow_nil: true
   validate :media_path_exist
   validate :parallel_media_sync_database
+  validate :server_base_url_valid
 
   after_update :toggle_media_listener, if: :saved_change_to_enable_media_listener?
   after_update_commit :sync_media, if: :saved_change_to_media_path?
@@ -32,6 +39,20 @@ class Setting < ApplicationRecord
 
     errors.add(:media_path, :not_exist) unless File.exist?(path)
     errors.add(:media_path, :unreadable) unless File.readable?(path)
+  end
+
+  # A configured base URL must be an absolute http(s) URL with a host, so the
+  # value encoded into Invite_Codes is actually reachable. Blank is allowed and
+  # falls back to the env default.
+  def server_base_url_valid
+    value = server_base_url
+    return if value.blank?
+
+    uri = URI.parse(value)
+    valid = uri.is_a?(URI::HTTP) && uri.host.present?
+    errors.add(:server_base_url, :invalid) unless valid
+  rescue URI::InvalidURIError
+    errors.add(:server_base_url, :invalid)
   end
 
   def parallel_media_sync_database

@@ -37,6 +37,20 @@
 
   <hr>
 
+  <h2><%= t("label.server") %></h2>
+  <%= form_with model: Setting, url: setting_path, method: :put, class: "c-form" do |form| %>
+    <div class='c-form__field'>
+      <%= form.label :server_base_url, t("field.server_base_url") %>
+      <%= form.text_field :server_base_url, value: Setting.server_base_url, class: "c-input", autocomplete: "off", placeholder: "https://music.example.com" %>
+      <small><%= t("text.server_base_url") %></small>
+    </div>
+    <div class='c-form__field c-form__field--submit'>
+      <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+    </div>
+  <% end %>
+
+  <hr>
+
   <h2><%= t("label.integration") %></h2>
   <%= form_with model: Setting, url: setting_path, method: :put, class: "c-form" do |form| %>
     <div class='c-form__field'>

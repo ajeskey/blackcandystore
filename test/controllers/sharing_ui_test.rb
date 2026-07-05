@@ -36,6 +36,12 @@ class SharingUiTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to library_access_grants_url(@library)
     assert flash[:invite_code].present?
+
+    # Following the redirect renders the code with a click-to-copy control.
+    follow_redirect!
+    assert_response :success
+    assert_select "[data-controller=?]", "clipboard"
+    assert_select "button[data-action=?]", "clipboard#copy"
   end
 
   test "the redeem-a-code form renders" do

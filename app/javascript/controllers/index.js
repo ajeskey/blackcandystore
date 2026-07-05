@@ -25,6 +25,9 @@ application.register("bridge--songs", Bridge__SongsController)
 import Bridge__ThemeController from "./bridge/theme_controller"
 application.register("bridge--theme", Bridge__ThemeController)
 
+import ClipboardController from "./clipboard_controller"
+application.register("clipboard", ClipboardController)
+
 import CoverImageController from "./cover_image_controller"
 application.register("cover-image", CoverImageController)
 

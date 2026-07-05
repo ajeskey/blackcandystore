@@ -6,7 +6,7 @@ class SettingTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "should have AVAILABLE_SETTINGS constant" do
-    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp ], Setting::AVAILABLE_SETTINGS
+    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp, :server_base_url ], Setting::AVAILABLE_SETTINGS
   end
 
   test "should default enable_daap and enable_rsp to false" do
@@ -105,6 +105,40 @@ class SettingTest < ActiveSupport::TestCase
 
     Setting.update(enable_media_listener: false)
     assert_not MediaListener.running?
+  end
+
+  test "server_base_url falls back to the env config when unset" do
+    Setting.instance.stub(:values, { "server_base_url" => nil }) do
+      with_env("SERVER_BASE_URL" => "https://music.example.com") do
+        assert_equal "https://music.example.com", Setting.server_base_url
+      end
+    end
+  end
+
+  test "a configured server_base_url overrides the env config" do
+    Setting.update(server_base_url: "https://my.host.example")
+
+    assert_equal "https://my.host.example", Setting.server_base_url
+  end
+
+  test "rejects a server_base_url that is not an absolute http(s) URL" do
+    setting = Setting.instance
+
+    setting.update(server_base_url: "not a url")
+    assert_not setting.valid?
+
+    setting.update(server_base_url: "ftp://host")
+    assert_not setting.valid?
+  end
+
+  test "accepts a valid server_base_url and a blank one" do
+    setting = Setting.instance
+
+    setting.server_base_url = "https://music.example.com"
+    assert setting.valid?
+
+    setting.server_base_url = ""
+    assert setting.valid?
   end
 
   test "should validate when enable parallel media sync" do

@@ -136,7 +136,15 @@ module InviteManager
     grant.token = secret_token
     grant.save!
 
-    encode(server_base_url: BlackCandy.config.server_base_url, secret_token: secret_token)
+    encode(server_base_url: current_server_base_url, secret_token: secret_token)
+  end
+
+  # This Server's effective public base URL: the runtime Setting when
+  # configured, otherwise the SERVER_BASE_URL env config. Used everywhere an
+  # Invite_Code is minted or matched so encoding and local/remote routing always
+  # agree on this Server's identity.
+  def current_server_base_url
+    Setting.server_base_url
   end
 
   # A Library qualifies only when it is a persisted, local Library that still
@@ -242,7 +250,7 @@ module InviteManager
     # from its configured base URL + "/nudges" (the same base URL mechanism used
     # to encode Invite_Codes).
     nudge_token = SecureRandom.hex(SECRET_TOKEN_BYTES)
-    nudge_callback_url = nudge_callback_url_for(BlackCandy.config.server_base_url)
+    nudge_callback_url = nudge_callback_url_for(current_server_base_url)
 
     begin
       confirmation = client.confirm_grant(
@@ -294,7 +302,7 @@ module InviteManager
   # The code references this Server when its decoded base URL matches this
   # Server's configured base URL (Req 5.1 vs 5.2 routing).
   def local_server?(server_base_url)
-    normalize_url(server_base_url) == normalize_url(BlackCandy.config.server_base_url)
+    normalize_url(server_base_url) == normalize_url(current_server_base_url)
   end
 
   def normalize_url(url)
