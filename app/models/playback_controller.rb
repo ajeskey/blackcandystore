@@ -52,6 +52,14 @@ class PlaybackController
   # became unavailable during `playing` (Req 14.12).
   REASON_NO_DEVICE_AVAILABLE = "no_output_device_available"
 
+  # Purpose namespace and TTL for the signed, song-scoped stream token handed to
+  # the playback sidecar so it can fetch a Song's audio from this Server without
+  # a login session (verified by SidecarStreamAccess). A short TTL bounds the
+  # window in which a leaked token is usable; a fresh token is minted on every
+  # dispatch.
+  SIDECAR_STREAM_PURPOSE = :sidecar_stream
+  SIDECAR_STREAM_TOKEN_TTL = 6.hours
+
   # Default reachability resolver (Req 14.13). An Output_Device is reachable
   # when a persisted row exists for its id and Device_Discovery has stamped a
   # `reachable_at` on it. This is intentionally injectable so the state machine
@@ -248,8 +256,10 @@ class PlaybackController
     begin
       client.play(
         device_ids: devices.map(&:id),
+        devices: devices.map { |device| device_descriptor(device) },
         stream_source: stream[:stream_source],
         stream_url: stream[:resolved_stream_path],
+        stream_token: sidecar_stream_token(song),
         credentials: creds
       )
     rescue PlaybackSidecar::AuthenticationError
@@ -297,6 +307,24 @@ class PlaybackController
 
   def active_devices?
     @session.active_output_device_ids.any?
+  end
+
+  # A device descriptor the sidecar can act on. The Rails `id` keys credentials;
+  # the protocol-level `identifier` is what the sidecar uses to reach the real
+  # AirPlay/Chromecast target (Req 13.6).
+  def device_descriptor(device)
+    {
+      id: device.id,
+      identifier: device.identifier,
+      protocol: device.protocol,
+      requires_password: device.requires_password
+    }
+  end
+
+  # A short-lived, song-scoped signed token authorizing the sidecar to fetch
+  # this Song's audio stream from the current Server without a login session.
+  def sidecar_stream_token(song)
+    song.signed_id(purpose: PlaybackController::SIDECAR_STREAM_PURPOSE, expires_in: PlaybackController::SIDECAR_STREAM_TOKEN_TTL)
   end
 
   def reachable?(device_id)

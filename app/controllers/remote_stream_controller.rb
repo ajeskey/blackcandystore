@@ -22,6 +22,8 @@
 # a controller namespace. The route still maps the `/stream/remote/:song_id`
 # path that `PathResolver` emits.
 class RemoteStreamController < ApplicationController
+  include SidecarStreamAccess
+
   # Request headers forwarded up to the hosting server so HTTP range requests
   # (seeking/partial playback) keep working across the proxy (Req 6.2).
   FORWARDED_REQUEST_HEADERS = %w[Range If-Range].freeze

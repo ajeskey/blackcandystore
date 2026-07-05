@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class StreamController < ApplicationController
+  include SidecarStreamAccess
+
   before_action :find_stream
 
   def new

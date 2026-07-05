@@ -87,6 +87,32 @@ class ServerPlaybackAudioPathTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # --- Sidecar contract enrichment: device descriptors + stream token --------
+
+  test "dispatch sends protocol device descriptors and a scoped stream token (Req 13.6, 14.9)" do
+    device = airplay_device(identifier: "living-room")
+    stub_play_ok
+
+    with_env(PlaybackSidecar::SIDECAR_URL_ENV => SIDECAR_URL) do
+      controller = controller_for(@user)
+      assert controller.select_devices([ device.id ]).ok?
+      assert controller.play(song_id: @local_song.id).ok?
+      assert controller.dispatch_audio.ok?
+    end
+
+    assert_requested :post, PLAY_ENDPOINT do |req|
+      body = JSON.parse(req.body)
+      descriptor = body["devices"].first
+      # The descriptor carries the protocol-level identifier the sidecar needs
+      # to reach the real device, keyed back to the Rails id.
+      descriptor["id"] == device.id &&
+        descriptor["identifier"] == "living-room" &&
+        descriptor["protocol"] == "airplay" &&
+        # The stream token verifies to exactly this Song under the sidecar purpose.
+        Song.find_signed(body["stream_token"], purpose: PlaybackController::SIDECAR_STREAM_PURPOSE)&.id == @local_song.id
+    end
+  end
+
   # --- Req 14.2: multi-room group — audio goes to every selected device ------
 
   test "dispatches synchronized audio to every selected AirPlay device as a group (Req 14.2)" do

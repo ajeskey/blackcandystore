@@ -55,17 +55,27 @@ module PlaybackSidecar
     # @param stream_url [String] the resolved same-origin path the sidecar fetches
     #   the audio from (a current-server stream path for local content, the remote
     #   proxy path for Remote_Library content)
+    # @param devices [Array<Hash>] descriptors for the active Output_Devices —
+    #   `{id:, identifier:, protocol:, requires_password:}`. The Rails `id` keys
+    #   `credentials`; the protocol-level `identifier` is what the sidecar uses to
+    #   reach the real AirPlay/Chromecast target (Rails DB ids are meaningless off
+    #   this server). Additive alongside `device_ids` for backward compatibility.
+    # @param stream_token [String, nil] a short-lived, song-scoped signed token
+    #   the sidecar appends when fetching `stream_url`, so it can pull the audio
+    #   from this Server without a login session (see SidecarStreamAccess).
     # @param credentials [Hash] per-device passwords keyed by device id, for
     #   password-protected AirPlay_Devices (Req 14.7)
     # @return [Hash] the parsed sidecar acknowledgement
-    def play(device_ids:, stream_source:, stream_url:, credentials: {})
+    def play(device_ids:, stream_source:, stream_url:, devices: [], stream_token: nil, credentials: {})
       response = HTTParty.post(
         "#{@base_url}#{PLAY_PATH}",
         headers: { "Content-Type" => "application/json", "Accept" => "application/json" },
         body: {
           device_ids: device_ids,
+          devices: devices,
           stream_source: stream_source,
           stream_url: stream_url,
+          stream_token: stream_token,
           credentials: credentials
         }.to_json,
         open_timeout: DISPATCH_TIMEOUT,

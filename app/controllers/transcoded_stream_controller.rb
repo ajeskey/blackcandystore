@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TranscodedStreamController < ApplicationController
+  include SidecarStreamAccess
+
   before_action :find_stream
   before_action :find_cache
 

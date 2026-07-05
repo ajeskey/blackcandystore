@@ -1,0 +1,36 @@
+# Example: Black Candy Store with the optional playback sidecar for server-side
+# output (AirPlay / Chromecast). See docs/playback-sidecar.md for the full
+# contract. This is a single-server example, separate from the two-instance
+# federation test setup in docker-compose.yml.
+#
+#   docker compose -f docker-compose.sidecar.yml up
+#
+# NOTE: AirPlay/Chromecast discovery uses mDNS/multicast, which does not cross
+# Docker's default bridge network. On Linux, host networking lets the sidecar
+# see devices on your LAN and lets the app reach the sidecar on loopback. On
+# macOS/Windows, run the sidecar directly on the host instead (host networking
+# is not supported there).
+services:
+  app:
+    image: ghcr.io/ajeskey/blackcandystore:latest
+    network_mode: host
+    environment:
+      # Where the app finds the sidecar (loopback under host networking).
+      PLAYBACK_SIDECAR_URL: http://127.0.0.1:9330
+      # Public base URL of the app; the sidecar joins stream paths to this.
+      SERVER_BASE_URL: http://127.0.0.1:3000
+    volumes:
+      - ./docker/storage/app:/rails/storage
+      - ./docker/media/app:/media
+    restart: unless-stopped
+
+  playback-sidecar:
+    build: ./playback-sidecar
+    # Or use a prebuilt image once published:
+    # image: ghcr.io/ajeskey/blackcandystore-sidecar:latest
+    network_mode: host
+    environment:
+      SIDECAR_PORT: "9330"
+      # Where the sidecar fetches audio from the app.
+      BLACK_CANDY_URL: http://127.0.0.1:3000
+    restart: unless-stopped

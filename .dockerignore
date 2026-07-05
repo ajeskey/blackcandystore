@@ -22,6 +22,8 @@ yarn-error.log
 Dockerfile
 docker-compose.pwd.yml
 docker-compose.yml
+docker-compose.sidecar.yml
+/playback-sidecar
 CHANGELOG.md
 README.md
 Procfile.dev
