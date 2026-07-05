@@ -2,23 +2,19 @@
   <img alt='Black Candy Store logo' width='200' src='https://raw.githubusercontent.com/ajeskey/blackcandystore/master/Black-Candy-Store-Logo.png'>
 </p>
 
-# Black Candy
-[![CI](https://github.com/blackcandy-org/black_candy/actions/workflows/ci.yml/badge.svg)](https://github.com/blackcandy-org/black_candy/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/blackcandy-org/blackcandy/badge.svg?branch=master)](https://coveralls.io/github/blackcandy-org/black_candy?branch=master)
-![Docker Pulls](https://img.shields.io/docker/pulls/blackcandy/blackcandy)
+# Black Candy Store
+[![CI](https://github.com/ajeskey/blackcandystore/actions/workflows/ci.yml/badge.svg)](https://github.com/ajeskey/blackcandystore/actions/workflows/ci.yml)
 
-![Screenshot](https://raw.githubusercontent.com/blackcandy-org/blackcandy/master/docs/images/screenshot_main.png)
-
-Black Candy is a self-hosted music streaming server, your personal music center.
+Black Candy Store is a self-hosted music streaming server built on Black Candy — your personal music center.
 
 > [!NOTE]
-> **Black Candy Store is an expansion of the [Black Candy](https://github.com/blackcandy-org/black_candy) project, not a separate product.** It builds directly on Black Candy and adds multi-library management, cross-server library sharing, and automatic catalog mirroring. Everything that makes Black Candy a great music server — the web player, mobile apps, browsing, playlists, and more — comes from the upstream Black Candy project and its contributors. See [Acknowledgments](#acknowledgments) for full credit.
+> **Black Candy Store is an expansion of the [Black Candy](https://github.com/blackcandy-org/black_candy) project, not a separate product.** It builds directly on Black Candy and adds multi-library management, cross-server library sharing, and automatic catalog mirroring. Everything that makes Black Candy a great music server — the web player, browsing, playlists, and more — comes from the upstream Black Candy project and its contributors. See [Acknowledgments](#acknowledgments) for full credit.
 
 ## Features
 
 Black Candy Store keeps everything Black Candy already offers and layers new multi-library and cross-server capabilities on top. Features introduced by this expansion are marked _(Store)_; everything else is provided by upstream Black Candy.
 
-- **Streaming and browsing** — browse, search, filter, and sort your songs, albums, and artists, and stream them from the web player or the native mobile apps.
+- **Streaming and browsing** — browse, search, filter, and sort your songs, albums, and artists, and stream them from the web player (native mobile apps coming soon).
 - **Playlists and favorites** — build playlists, manage a playback queue, and favorite the songs you love.
 - **Multiple libraries** _(Store)_ — organize your music into several named libraries, each backed by its own media path, instead of one monolithic collection. Each user browses one active library at a time. Existing single-media-path installs keep working: the pre-existing collection becomes the default library automatically.
 - **Cross-server library sharing** _(Store)_ — share a single library with someone on another Black Candy server using an invite code. They redeem it to browse and play your library as if it were their own, and you can revoke access at any time.
@@ -29,22 +25,12 @@ Black Candy Store keeps everything Black Candy already offers and layers new mul
 
 See the [API documentation](docs/api/README.md) for the full HTTP API, including the [Libraries](docs/api/sections/libraries.md), [Sharing](docs/api/sections/sharing.md), and [Playback & source preference](docs/api/sections/playback.md) sections, plus the server-to-server [Federation API](docs/api/sections/federation.md) that powers cross-server sharing and catalog mirroring.
 
-## Try The Demo
-
-Please visit <https://demo.blackcandy.org> and use demo user (email: admin@admin.com, password: foobar) to log in. And feel free to try it.
-
-> [!NOTE]
-> This demo user does not have administrator privileges. So you cannot experience all the features in Black Candy. And all music in the demo are from [Free Music Archive](https://freemusicarchive.org/). You can check their [licenses](https://github.com/blackcandy-org/blackcandy/blob/master/docs/demo_music_licenses.md).
-
 ## Installation
 
-Black Candy uses docker image to install easily. You can run Black Candy like this.
+Black Candy Store ships as a Docker image. You can run it like this.
 
 ```shell
-docker run -p 80:80 ghcr.io/blackcandy-org/blackcandy:latest 
-
-# Or pull from Docker Hub.
-docker run -p 80:80 blackcandy/blackcandy:latest 
+docker run -p 80:80 ghcr.io/ajeskey/blackcandystore:latest
 ```
 
 That's all. Now, you can access either http://localhost or http://host-ip in a browser, and use initial admin user to log in (email: admin@admin.com, password: foobar).
@@ -52,89 +38,82 @@ That's all. Now, you can access either http://localhost or http://host-ip in a b
 ## Upgrade
 
 > [!IMPORTANT]
-> If you upgrade to a new version, you need to read the upgrade guide carefully before upgrade. Because there are may some breaking changes in a new version.
+> If you upgrade to a new version, you need to read the upgrade guide carefully before upgrade. Because there may be some breaking changes in a new version.
 >
-> Please Check the [Upgrade Guide](https://github.com/blackcandy-org/blackcandy/blob/master/docs/upgrade.md) for upgrading to a new version 
+> Please check the [Upgrade Guide](https://github.com/ajeskey/blackcandystore/blob/master/docs/upgrade.md) for upgrading to a new version.
 
-Upgrade Black Candy is pull new image from remote. Then remove an old container and create a new one.
+To upgrade, pull the new image from the remote, then remove the old container and create a new one.
 
 ```shell
-docker pull ghcr.io/blackcandy-org/blackcandy:latest
-docker stop <your_blackcandy_container>
-docker rm <your_blackcandy_container>
-docker run <OPTIONS> ghcr.io/blackcandy-org/blackcandy:latest 
+docker pull ghcr.io/ajeskey/blackcandystore:latest
+docker stop <your_blackcandystore_container>
+docker rm <your_blackcandystore_container>
+docker run <OPTIONS> ghcr.io/ajeskey/blackcandystore:latest
 ```
 
-With docker compose, you can upgrade Black Candy like this:
+With docker compose, you can upgrade like this:
 
 ```shell
-docker pull ghcr.io/blackcandy-org/blackcandy:latest
+docker pull ghcr.io/ajeskey/blackcandystore:latest
 docker-compose down
 docker-compose up
 ```
 
 ## Mobile Apps
 
-Black Candy mobile apps are available in the following app stores:
-
-[<img src="https://raw.githubusercontent.com/blackcandy-org/app/master/images/appstore_badge.png" alt="Get it on App Store" height="50">](https://apps.apple.com/app/blackcandy/id6444304071)
-[<img src="https://raw.githubusercontent.com/blackcandy-org/app/master/images/googleplay_badge.png" alt="Get it on Google Play" height="50">](https://play.google.com/store/apps/details?id=org.blackcandy.androidApp)
-[<img src="https://raw.githubusercontent.com/blackcandy-org/app/master/images/fdroid_badge.png" alt="Get it on F-Droid" height="50">](https://f-droid.org/packages/org.blackcandy.androidApp/)
-
-
-For Android app, you can also download APK from [GitHub Release](https://github.com/blackcandy-org/android/releases/latest)
+Native mobile apps for Black Candy Store are coming soon.
 
 ## Configuration
 
 ### Port Mapping
 
-Black Candy exports the 80 port. If you want to be able to access it from the host, you can use the `-p` option to map the port.
+Black Candy Store exposes port 80. If you want to be able to access it from the host, you can use the `-p` option to map the port.
 
 ```shell
-docker run -p 3000:80 ghcr.io/blackcandy-org/blackcandy:latest
+docker run -p 3000:80 ghcr.io/ajeskey/blackcandystore:latest
 ```
 
 ### Media Files Mounts
 
-You can mount media files from host to container and use `MEDIA_PATH` environment variable to set the media path for black candy.
+You can mount media files from the host to the container and use the `MEDIA_PATH` environment variable to set the media path.
 
 ```shell
-docker run -v /media_data:/media_data -e MEDIA_PATH=/media_data ghcr.io/blackcandy-org/blackcandy:latest   
+docker run -v /media_data:/media_data -e MEDIA_PATH=/media_data ghcr.io/ajeskey/blackcandystore:latest
 ```
 
 ### Use PostgreSQL As Database
 
-Black Candy use SQLite as database by default. Because SQLite can simplify the process of installation, and it's an ideal choice for self-hosted small server. If you think SQLite is not enough, or you are using some cloud service like heroku to host Black Candy, you can also use PostgreSQL as database.
+Black Candy Store uses SQLite as its database by default, because SQLite simplifies installation and is an ideal choice for a small self-hosted server. If SQLite is not enough, or you are using a cloud service like Heroku to host it, you can also use PostgreSQL.
 
 ```shell
-docker run -e DB_ADAPTER=postgresql -e DB_URL=postgresql://yourdatabaseurl ghcr.io/blackcandy-org/blackcandy:latest 
+docker run -e DB_ADAPTER=postgresql -e DB_URL=postgresql://yourdatabaseurl ghcr.io/ajeskey/blackcandystore:latest
 ```
 
 ### How to Persist Data
 
-All the data that need to persist in Black Candy are stored in `/rails/storage`, So you can mount this directory to host to persist data.
+All the data that needs to persist is stored in `/rails/storage`, so you can mount this directory to the host to persist data.
 
 ```shell
 mkdir storage_data
 
-docker run -v ./storage_data:/rails/storage ghcr.io/blackcandy-org/blackcandy:latest 
+docker run -v ./storage_data:/rails/storage ghcr.io/ajeskey/blackcandystore:latest
 ```
 
 ### Running as an Arbitrary User
 
-When mounting volumes, you may encounter permission issues between the host and the Docker container. To resolve this issue, pass the UID and GID with the `--user` to set the same UID and GID as your host user.
+When mounting volumes, you may encounter permission issues between the host and the Docker container. To resolve this, pass the UID and GID with `--user` to match the same UID and GID as your host user.
 
 ```shell
-docker run --user 2000:2000 -v ./storage_data:/rails/storage ghcr.io/blackcandy-org/blackcandy:latest 
+docker run --user 2000:2000 -v ./storage_data:/rails/storage ghcr.io/ajeskey/blackcandystore:latest
 ```
 
 ### Logging
 
-Black Candy logs to `STDOUT` by default. So if you want to control the log, Docker already supports a lot of options to handle the log in the container. See: https://docs.docker.com/config/containers/logging/configure/.
+Black Candy Store logs to `STDOUT` by default. If you want to control the log, Docker already supports a lot of options to handle logs in the container. See: https://docs.docker.com/config/containers/logging/configure/.
 
 ### Secret Key Base
 
-Black Candy uses cryptography to protect sessions and other security-sensitive data, and needs a secret value as the basis of those secrets. This value can be anything, but it should be unguessable, and specific to your instance.
+Black Candy Store uses cryptography to protect sessions and other security-sensitive data, and needs a secret value as the basis of those secrets. This value can be anything, but it should be unguessable and specific to your instance.
 
 You can use any long random string for this. One way to generate one is with `openssl`:
 
@@ -145,10 +124,10 @@ openssl rand -hex 64
 Once you have one, set it in the `SECRET_KEY_BASE` environment variable:
 
 ```shell
-docker run -e SECRET_KEY_BASE=your_generated_secret ghcr.io/blackcandy-org/blackcandy:latest
+docker run -e SECRET_KEY_BASE=your_generated_secret ghcr.io/ajeskey/blackcandystore:latest
 ```
 
-If `SECRET_KEY_BASE` is not set, Black Candy will generate a new one on each startup, which will invalidate all existing sessions.
+If `SECRET_KEY_BASE` is not set, a new one is generated on each startup, which will invalidate all existing sessions.
 
 ## Environment Variables
 
@@ -158,31 +137,23 @@ If `SECRET_KEY_BASE` is not set, Black Candy will generate a new one on each sta
 | CABLE_DB_URL          |           | The URL of Pub/Sub database. You must set this environment variable if you use PostgreSQL as database.                                                                                                                                                                                    |
 | QUEUE_DB_URL                 |           | The URL of background job database. You must set this environment variable if you use PostgreSQL as database.                                                                                                                                                                             |
 | CACHE_DB_URL                 |           | The URL of cache database. You must set this environment variable if you use PostgreSQL as database.                                                                                                                                                                                      |
-| MEDIA_PATH                   |           | You can use this environment variable to set media path for Black Candy, otherwise you can set media path in settings page.                                                                                                                                                               |
-| DB_ADAPTER             | "sqlite"  | There are two adapters are supported, "sqlite" and "postgresql".                                                                                                                                                                                                                          |
-| SECRET_KEY_BASE              |           | When the SECRET_KEY_BASE environment variable is not set, Black candy will generate SECRET_KEY_BASE environment variable every time when service start up. This will cause old sessions invalid, You can set your own SECRET_KEY_BASE environment variable on docker service to avoid it. |
+| MEDIA_PATH                   |           | You can use this environment variable to set the media path, otherwise you can set the media path on the settings page.                                                                                                                                                                   |
+| DB_ADAPTER             | "sqlite"  | There are two adapters supported, "sqlite" and "postgresql".                                                                                                                                                                                                                              |
+| SECRET_KEY_BASE              |           | When the SECRET_KEY_BASE environment variable is not set, a new SECRET_KEY_BASE is generated every time the service starts up. This invalidates old sessions, so you can set your own SECRET_KEY_BASE environment variable to avoid it.                                                    |
 | FORCE_SSL                    | false     | Force all access to the app over SSL.                                                                                                                                                                                                                                                     |
-| DEMO_MODE                    | false     | Whether to enable demo mode, when demo mode is on, all users cannot access administrator privileges, even user is admin. And also users cannot change their profile.                                                                                                                      |
-| HTTP_PORT                    | 80        | The port that Black Candy listens on inside the container. Useful when you want to run Black Candy on a port other than 80.                                                                                                                                                               |
+| DEMO_MODE                    | false     | Whether to enable demo mode; when demo mode is on, all users cannot access administrator privileges, even if the user is admin, and users cannot change their profile.                                                                                                                    |
+| HTTP_PORT                    | 80        | The port that the server listens on inside the container. Useful when you want to run on a port other than 80.                                                                                                                                                                            |
 | SERVER_BASE_URL              | http://localhost:3000 | This server's public base URL. Used for cross-server library sharing: it is encoded into every invite code so a redeeming server knows how to reach this server, and it is used to build this server's catalog-nudge callback URL (`<SERVER_BASE_URL>/nudges`). Set this to your server's real public URL if you share libraries across servers. |
 | CATALOG_SYNC_POLL_INTERVAL   | 15        | How often, in minutes, a redeeming server pulls catalog changes for each active shared-library connection to keep its local mirror in sync. |
 | AR_ENCRYPTION_PRIMARY_KEY    |           | Primary key for Active Record encryption, used to encrypt sensitive data at rest such as the cross-server access token stored for a shared-library connection. Set all three `AR_ENCRYPTION_*` variables in production; if unset, non-secret local development defaults are used (do not rely on these for real data). |
 | AR_ENCRYPTION_DETERMINISTIC_KEY |        | Deterministic key for Active Record encryption. See `AR_ENCRYPTION_PRIMARY_KEY`. |
 | AR_ENCRYPTION_KEY_DERIVATION_SALT |      | Key-derivation salt for Active Record encryption. See `AR_ENCRYPTION_PRIMARY_KEY`. |
 
-## Edge Version
-
-The edge version of Black Candy base on master branch, which means it's not stable, you may encounter data loss or other issues. However, I don't recommend normal user using an edge version. But if you are a developer who wants to test or contribute to Black Candy, you can use the edge version.
-
-```shell
-docker pull ghcr.io/blackcandy-org/blackcandy:edge
-```
-
 ## Development
 
 ### Requirements
 
-- Ruby 4.0 
+- Ruby 4.0
 - Node.js 20
 - libvips
 - FFmpeg
@@ -210,14 +181,14 @@ rails db:seed
 
 ### Start all services
 
-After you’ve set up everything, now you can run `./bin/dev` to start all services you need to develop.
-Then visit <http://localhost:3000> use initial admin user to log in (email: admin@admin.com, password: foobar).
+After you've set up everything, you can run `./bin/dev` to start all the services you need to develop.
+Then visit <http://localhost:3000> and use the initial admin user to log in (email: admin@admin.com, password: foobar).
 
 ### Running tests
 
 ```shell
-# Running all test
-$ rails test:all 
+# Running all tests
+$ rails test:all
 
 # Running lint
 $ rails lint:all
@@ -225,18 +196,12 @@ $ rails lint:all
 
 ## Integrations
 
-Black Candy support get artist and album image from Discogs API. You can create an API token from Discogs and set Discogs token on Setting page to enable it.
+Black Candy Store supports getting artist and album images from the Discogs API. You can create an API token from Discogs and set the Discogs token on the Settings page to enable it.
 
 ## Acknowledgments
 
 Black Candy Store is an expansion of the [Black Candy](https://github.com/blackcandy-org/black_candy) project, created and maintained by [blackcandy-org](https://github.com/blackcandy-org) and its contributors.
 
-Black Candy provides the entire foundation this work is built on — the streaming server, web player, mobile apps, browsing and search, playlists, and the overall design and polish. This expansion only adds multi-library management, cross-server library sharing, and automatic catalog mirroring on top of that foundation; none of it would be possible without the upstream project.
+Black Candy provides the entire foundation this work is built on — the streaming server, web player, browsing and search, playlists, and the overall design and polish. This expansion only adds multi-library management, cross-server library sharing, and automatic catalog mirroring on top of that foundation; none of it would be possible without the upstream project.
 
 A huge thank you to the Black Candy team and community for creating and maintaining such a great music server, and for making it open source. If you enjoy Black Candy Store, please consider starring and supporting the [upstream Black Candy project](https://github.com/blackcandy-org/black_candy). Please refer to the upstream repository for its license and terms.
-
-## Sponsorship
-
-This project is supported by:
-
-<a href="https://www.jetbrains.com/community/opensource"><img src="https://resources.jetbrains.com/storage/products/company/brand/logos/jb_square.svg"></a>
