@@ -29,3 +29,19 @@
     <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
   </div>
 <% end %>
+
+<%= form_with url: playback_mode_path, method: :patch, class: "c-form" do |form| %>
+  <div class='c-form__field'>
+    <%= label_tag :playback_mode, t("field.playback_mode") %>
+    <% User::PLAYBACK_MODE_OPTIONS.each do |option| %>
+      <div class='c-form__radio'>
+        <%= radio_button_tag :playback_mode, option, user.playback_mode == option, id: "playback_mode_#{option}" %>
+        <%= label_tag "playback_mode_#{option}", t("playback_mode.#{option}") %>
+      </div>
+    <% end %>
+    <small><%= t("text.playback_mode") %></small>
+  </div>
+  <div class='c-form__field c-form__field--submit'>
+    <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+  </div>
+<% end %>

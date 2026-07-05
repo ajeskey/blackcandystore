@@ -23,6 +23,18 @@ class SettingsUiTest < ActionDispatch::IntegrationTest
     assert_equal "prefer_highest_quality", user.reload.source_preference
   end
 
+  test "a user can update their playback mode from settings" do
+    user = users(:visitor1)
+    login(user)
+
+    patch playback_mode_path,
+      params: { playback_mode: "server_playback" },
+      headers: { "HTTP_REFERER" => setting_url }
+
+    assert_response :redirect
+    assert_equal "server_playback", user.reload.playback_mode
+  end
+
   test "an admin can toggle DAAP and RSP from settings" do
     login(users(:admin))
 

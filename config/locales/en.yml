@@ -114,6 +114,7 @@ en:
     invite_code: 'Invite Code'
     expires_in: 'Expires In'
     source_preference: 'Source Preference'
+    playback_mode: 'Playback Mode'
     enable_daap: 'Enable DAAP'
     enable_rsp: 'Enable RSP'
 
@@ -139,9 +140,14 @@ en:
     prefer_own_server: 'Prefer my own server'
     prefer_highest_quality: 'Prefer highest quality'
 
+  playback_mode:
+    client_cast: 'Cast from this device'
+    server_playback: 'Play on the server'
+
   text:
     transcoding: "Black candy will transcode formats that are not supported by the browser by default."
     source_preference: "When the same track is available from more than one library or server, choose which copy to stream."
+    playback_mode: "Choose where audio plays. Playing on the server requires a running playback sidecar."
     media_clients: "Expose your local library content to external DAAP and RSP clients."
     allow_transcode_lossless: "Will transcode lossless format to mp3 to reduce bandwidth."
     enable_media_listener: "Media listener can automatically sync with library changes."
