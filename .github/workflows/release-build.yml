@@ -6,6 +6,7 @@ on:
       - master
     tags:
       - v*
+  workflow_dispatch:
 
 # The built-in GITHUB_TOKEN needs write access to GitHub Packages (GHCR) to push
 # the image, and write access to contents to create a GitHub Release on tags.
