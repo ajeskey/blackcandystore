@@ -83,12 +83,15 @@ class SongTest < ActiveSupport::TestCase
     assert_equal songs(:flac_sample), Song.sort_records(:invalid).first
   end
 
-  test "should get unique error when create song with same md5_hash" do
+  test "should get unique error when create song with same md5_hash in the same library" do
+    existing = songs(:flac_sample)
+
     song = Song.new(
       name: "song_test",
       file_path: Rails.root.join("test/fixtures/files/artist1_album2.mp3"),
       file_path_hash: "fake_path_hash",
-      md5_hash: songs(:flac_sample).md5_hash,
+      md5_hash: existing.md5_hash,
+      library_id: existing.library_id,
       artist_id: artists(:artist1).id,
       album_id: albums(:album1).id
     )
@@ -96,5 +99,86 @@ class SongTest < ActiveSupport::TestCase
     assert_raise ActiveRecord::RecordNotUnique do
       song.save
     end
+  end
+
+  test "should allow same md5_hash in different libraries" do
+    existing = songs(:flac_sample)
+
+    song = Song.new(
+      name: "song_test",
+      file_path: Rails.root.join("test/fixtures/files/artist1_album2.mp3"),
+      file_path_hash: "fake_path_hash",
+      md5_hash: existing.md5_hash,
+      library_id: libraries(:secondary_library).id,
+      artist_id: artists(:artist1).id,
+      album_id: albums(:album1).id
+    )
+
+    assert_nothing_raised do
+      song.save!
+    end
+  end
+
+  # A Mirrored_Song lives in a Remote_Library and stores no local file, so the
+  # file-backed columns are not required (metadata-only mirror, Req 1.4). The
+  # presence validations are conditioned on `library&.local?` (Req 1.2).
+  test "should be valid in a remote library with no file_path, file_path_hash, or md5_hash" do
+    library = remote_library
+    song = Song.new(
+      name: "mirrored_song",
+      library: library,
+      artist: remote_artist(library),
+      album: remote_album(library),
+      duration: 8.0
+    )
+
+    assert_nil song.file_path
+    assert_nil song.file_path_hash
+    assert_nil song.md5_hash
+    assert song.valid?, "expected a remote-library song without file columns to be valid, got: #{song.errors.full_messages.inspect}"
+  end
+
+  # Local-library songs are unaffected by the conditional relaxation: all three
+  # file-backed columns remain required, preserving existing behavior (Req 1.2).
+  test "should require file_path, file_path_hash, and md5_hash in a local library" do
+    song = Song.new(
+      name: "local_song",
+      library: libraries(:default_library),
+      artist: artists(:artist1),
+      album: albums(:album1),
+      duration: 8.0
+    )
+
+    assert_not song.valid?, "expected a local-library song without file columns to be invalid"
+    assert_includes song.errors.attribute_names, :file_path
+    assert_includes song.errors.attribute_names, :file_path_hash
+    assert_includes song.errors.attribute_names, :md5_hash
+  end
+
+  private
+
+  def remote_library
+    connection = LibraryConnection.create!(
+      user: users(:visitor1),
+      server_base_url: "https://remote.example.com",
+      remote_library_id: 99,
+      grant_token: "remote-bearer-token",
+      status: :active
+    )
+
+    Library.create!(
+      name: "Remote Library #{SecureRandom.hex(4)}",
+      kind: :remote,
+      owner: users(:visitor1),
+      library_connection: connection
+    )
+  end
+
+  def remote_artist(library)
+    Artist.create!(name: "remote_artist_#{SecureRandom.hex(4)}", library: library)
+  end
+
+  def remote_album(library)
+    Album.create!(name: "remote_album_#{SecureRandom.hex(4)}", library: library, artist: remote_artist(library))
   end
 end

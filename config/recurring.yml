@@ -1,10 +1,18 @@
-# production:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
+# Sync_Scheduler (Req 4.1, 4.5): every Poll_Interval, enqueue an incremental
+# CatalogSyncJob for each active Library_Connection so every Catalog_Mirror is
+# reconciled on the schedule. The interval is driven by
+# BlackCandy.config.catalog_sync_poll_interval (minutes), which defaults to 15
+# when the CATALOG_SYNC_POLL_INTERVAL env var is unset.
+default: &default
+  catalog_sync_scheduler:
+    command: "CatalogSyncJob.enqueue_all_active"
+    schedule: <%= "every #{BlackCandy.config.catalog_sync_poll_interval} minutes" %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

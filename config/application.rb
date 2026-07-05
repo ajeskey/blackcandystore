@@ -33,9 +33,22 @@ module BlackCandy
   has_config :cable_db_url
   has_config :queue_db_url
   has_config :media_path
+  # The current Server's public base URL, encoded into every Invite_Code so a
+  # redeeming Server knows how to reach this Server (Req 4.3). Supplied in
+  # production via the SERVER_BASE_URL environment variable; falls back to the
+  # local development host so single-node and test setups work without extra
+  # configuration.
+  has_config :server_base_url, default: "http://localhost:3000"
   has_config :db_adapter, default: "sqlite"
   has_config :force_ssl, default: false
   has_config :demo_mode, default: false
+  # Poll_Interval — the duration in minutes between scheduled Incremental_Syncs
+  # for each active Library_Connection (Req 4.1, 4.5). Consumed by the
+  # Sync_Scheduler recurring task in config/recurring.yml. Supplied in
+  # production via the CATALOG_SYNC_POLL_INTERVAL environment variable; falls
+  # back to a 15-minute default when unset so the mirror stays current without
+  # any explicit configuration.
+  has_config :catalog_sync_poll_interval, default: 15
 
   config_validate :db_adapter do |value|
     unless SUPPORTED_DATABASE_ADAPTERS.include?(value)
@@ -63,6 +76,24 @@ module BlackCandy
     config.active_storage.resolve_model_to_route = :rails_storage_proxy
 
     config.solid_queue.preserve_finished_jobs = false
+
+    # ActiveRecord encryption keys. Encrypted attributes (e.g.
+    # `LibraryConnection#grant_token`, which holds a cross-server Bearer
+    # credential) require these to be configured. Production supplies them via
+    # environment variables; development and test fall back to fixed, local-only
+    # keys so the test suite and local runs work without provisioning
+    # credentials. The fallback keys are intentionally non-secret and MUST NOT
+    # be used to protect real data.
+    encryption = config.active_record.encryption
+    encryption.primary_key = ENV["AR_ENCRYPTION_PRIMARY_KEY"]
+    encryption.deterministic_key = ENV["AR_ENCRYPTION_DETERMINISTIC_KEY"]
+    encryption.key_derivation_salt = ENV["AR_ENCRYPTION_KEY_DERIVATION_SALT"]
+
+    unless ENV["RAILS_ENV"] == "production"
+      encryption.primary_key ||= "bcs_local_ar_encryption_primary_key_do_not_use_in_production"
+      encryption.deterministic_key ||= "bcs_local_ar_encryption_deterministic_key_do_not_use_in_production"
+      encryption.key_derivation_salt ||= "bcs_local_ar_encryption_key_derivation_salt_do_not_use_in_production"
+    end
 
     # Configuration for the application, engines, and railties goes here.
     #

@@ -5,6 +5,8 @@
 - [Authentication](sections/authentication.md) — sessions, API tokens, logout
 - [System](sections/system.md) — server version and minimum supported app version
 - [Users](sections/users.md) — listing, creating, updating, and deleting users; updating own profile
+- [Libraries](sections/libraries.md) — multiple local libraries, the active library, and browsing shared remote libraries
+- [Sharing](sections/sharing.md) — invite codes, redemptions, and access grants for cross-server library sharing
 - [Songs](sections/songs.md) — browsing, filtering, and sorting songs
 - [Albums](sections/albums.md) — browsing albums and updating cover images
 - [Artists](sections/artists.md) — browsing artists and updating cover images
@@ -12,7 +14,12 @@
 - [Playlist songs](sections/playlist_songs.md) — listing, adding, removing, and reordering songs inside a playlist
 - [Current playlist](sections/current_playlist.md) — manipulating the playback queue
 - [Favorite playlist](sections/favorite_playlist.md) — favoriting and unfavoriting songs
+- [Playback & source preference](sections/playback.md) — source preference, playback mode, cast sessions, and per-song stream-source resolution
 - [Search](sections/search.md) — searching across albums, artists, playlists, and songs
+
+## Cross-server protocol
+
+- [Federation API](sections/federation.md) — the server-to-server protocol for sharing, synchronizing, and streaming a library across Black Candy servers (catalog mirror sync + best-effort nudge). This is not called by browsers or the mobile app.
 
 ## Authentication
 

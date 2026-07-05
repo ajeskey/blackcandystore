@@ -7,6 +7,7 @@ class Album < ApplicationRecord
   include ImageableConcern
   include FilterableConcern
   include SortableConcern
+  include LibraryScopedConcern
 
   after_initialize :set_default_name, if: :new_record?
 

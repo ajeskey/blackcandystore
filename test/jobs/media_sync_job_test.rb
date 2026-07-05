@@ -11,7 +11,7 @@ class MediaSyncJobTest < ActiveJob::TestCase
     file_paths = [ fixtures_file_path("artist1_album1.flac") ]
     mock = Minitest::Mock.new
 
-    mock.expect(:call, true, [ :added, file_paths ])
+    mock.expect(:call, true, [ :added, file_paths ], library_id: nil)
 
     MediaSyncJob.perform_later(:added, file_paths)
 
@@ -25,7 +25,7 @@ class MediaSyncJobTest < ActiveJob::TestCase
     file_paths = [ fixtures_file_path("artist1_album1.flac") ]
     mock = Minitest::Mock.new
 
-    mock.expect(:call, true, [ :removed, file_paths ])
+    mock.expect(:call, true, [ :removed, file_paths ], library_id: nil)
 
     MediaSyncJob.perform_later(:removed, file_paths)
 
@@ -39,7 +39,7 @@ class MediaSyncJobTest < ActiveJob::TestCase
     file_paths = [ fixtures_file_path("artist1_album1.flac") ]
     mock = Minitest::Mock.new
 
-    mock.expect(:call, true, [ :modified, file_paths ])
+    mock.expect(:call, true, [ :modified, file_paths ], library_id: nil)
 
     MediaSyncJob.perform_later(:modified, file_paths)
 

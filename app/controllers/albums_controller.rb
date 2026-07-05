@@ -6,7 +6,7 @@ class AlbumsController < ApplicationController
   before_action :get_sort_option, only: [ :index ]
 
   def index
-    records = Album.includes(:artist)
+    records = scoped_to_active_library(Album).includes(:artist)
       .with_attached_cover_image
       .filter_records(filter_params)
       .sort_records(*sort_params)

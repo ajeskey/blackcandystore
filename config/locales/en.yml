@@ -19,6 +19,7 @@ en:
     recently_added: 'Recently Added'
     recently_played: 'Recently Played'
     library: 'Library'
+    libraries: 'Libraries'
     create_playlist: 'Create Playlist'
     edit_playlist: 'Edit Playlist'
     no_items: 'No Items'
@@ -121,5 +122,6 @@ en:
       messages:
         not_exist: 'does not exist'
         unreadable: 'is unreadable'
+        not_verifiable: 'could not be verified'
         invalid_content_type: "has an invalid content type"
         not_supported_with_sqlite: "is not supported with SQLite"

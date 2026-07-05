@@ -26,6 +26,7 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "webmock/minitest"
 require "minitest/mock"
+require_relative "support/property_helper"
 
 allowed_sites_for_webmock = [
   "chromedriver.storage.googleapis.com"
@@ -64,6 +65,12 @@ end
 
 class ActiveSupport::TestCase
   include Turbo::Broadcastable::TestHelper
+
+  # Property-based testing support (see test/support/property_helper.rb).
+  # Property tests use `check_property(iterations: 100) { generator }.check { |value| ... }`,
+  # run a minimum of 100 iterations, and MUST be tagged with a comment in the format:
+  #   # Feature: multi-server-library-sharing, Property {number}: {property_text}
+  include PropertyHelper
 
   # Run tests in parallel with specified workers
   parallelize(workers: :number_of_processors)

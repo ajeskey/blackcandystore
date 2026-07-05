@@ -17,4 +17,10 @@
 
 ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.uncountable %w[media_syncing]
+
+  # Protocol acronyms so Zeitwerk maps daap_service.rb -> DAAPService and
+  # rsp_service.rb -> RSPService, matching the DAAP_Service / RSP_Service naming
+  # in the multi-server-library-sharing spec (Req 15).
+  inflect.acronym "DAAP"
+  inflect.acronym "RSP"
 end

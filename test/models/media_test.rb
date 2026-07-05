@@ -155,4 +155,166 @@ class MediaTest < ActiveSupport::TestCase
       Media.fetch_external_metadata
     end
   end
+
+  # --- Catalog_Version bump-hook wiring (Req 3.1, 3.4, 3.5) -----------------
+  # These assert that the scan pipeline (Media.sync / Media.clean_up) keeps a
+  # Local_Library's `catalog_version` and its `catalog_changes` log in lock-step
+  # with the catalog: every catalog change bumps the version by one and appends
+  # exactly one correctly-typed CatalogChange row stamped with that version.
+
+  test "adding a file bumps the catalog version once and appends an upsert song change" do
+    library = Library.default
+
+    before_version = library.catalog_version
+    before_count = library_changes(library).count
+
+    Media.sync(:added, [ file_fixture("artist1_album1.flac") ], library_id: library.id)
+
+    song = Song.sole
+    library.reload
+
+    # A single addition bumps the version exactly once (Req 3.1).
+    assert_equal before_version + 1, library.catalog_version
+    assert_equal before_count + 1, library_changes(library).count
+
+    # ...and appends one upsert row for the song, stamped with the new version (Req 3.4).
+    change = library_changes(library).last
+    assert_equal "upsert", change.change_type
+    assert_equal "song", change.item_type
+    assert_equal song.id, change.item_id
+    assert_equal library.catalog_version, change.version
+  end
+
+  test "updating a file's metadata bumps the version and appends a deletion then an upsert song change" do
+    library = Library.default
+
+    # Two songs in the same album/artist so the modified-file re-sync does not
+    # orphan the album or artist (isolating the metadata-update path).
+    Media.sync(:added, [ file_fixture("artist1_album1.flac"), file_fixture("artist1_album1.m4a") ], library_id: library.id)
+
+    library.reload
+    before_version = library.catalog_version
+    before_count = library_changes(library).count
+    old_song = Song.find_by!(name: "flac_sample")
+
+    # A metadata update runs through Media.sync(:modified) = remove + add: the
+    # existing song row is deleted and re-added as an upsert.
+    stub_file_metadata(file_fixture("artist1_album1.flac"), tracknum: 9) do
+      Media.sync(:modified, [ file_fixture("artist1_album1.flac") ], library_id: library.id)
+    end
+
+    library.reload
+    new_song = Song.find_by!(name: "flac_sample")
+
+    # One deletion (old row) + one upsert (re-added row) => two bumps, two rows
+    # in lock-step (Req 3.1, 3.4, 3.5).
+    assert_equal before_version + 2, library.catalog_version
+    assert_equal before_count + 2, library_changes(library).count
+
+    new_changes = library_changes(library).offset(before_count).to_a
+
+    deletion = new_changes.find { |c| c.change_type == "deletion" }
+    assert_not_nil deletion, "expected a deletion CatalogChange for the removed song"
+    assert_equal "song", deletion.item_type
+    assert_equal old_song.id, deletion.item_id
+
+    upsert = new_changes.find { |c| c.change_type == "upsert" }
+    assert_not_nil upsert, "expected an upsert CatalogChange for the re-added song"
+    assert_equal "song", upsert.item_type
+    assert_equal new_song.id, upsert.item_id
+    assert_equal library.catalog_version, upsert.version
+  end
+
+  test "removing a file bumps the version once and appends a deletion song change" do
+    library = Library.default
+
+    # Two songs in the same album/artist so removing one does not orphan the
+    # album or artist (isolating the removal path).
+    Media.sync(:added, [ file_fixture("artist1_album1.flac"), file_fixture("artist1_album1.m4a") ], library_id: library.id)
+
+    library.reload
+    before_version = library.catalog_version
+    before_count = library_changes(library).count
+    removed_song = Song.find_by!(name: "m4a_sample")
+
+    Media.sync(:removed, [ file_fixture("artist1_album1.m4a") ], library_id: library.id)
+
+    library.reload
+
+    assert_equal before_version + 1, library.catalog_version
+    assert_equal before_count + 1, library_changes(library).count
+
+    change = library_changes(library).last
+    assert_equal "deletion", change.change_type
+    assert_equal "song", change.item_type
+    assert_equal removed_song.id, change.item_id
+    assert_equal library.catalog_version, change.version
+  end
+
+  test "orphan cleanup appends correctly-typed album and artist deletion changes" do
+    library = Library.default
+
+    Media.sync(:added, [ file_fixture("artist1_album1.flac") ], library_id: library.id)
+
+    orphan_album = Album.find_by!(name: "album1")
+    orphan_artist = Artist.find_by!(name: "artist1")
+
+    # Remove the only song without going through the versioned pipeline so the
+    # subsequent clean_up records only the orphan album/artist deletions.
+    Song.where(library_id: library.id).delete_all
+
+    library.reload
+    before_version = library.catalog_version
+    before_count = library_changes(library).count
+
+    Media.clean_up(library_id: library.id)
+
+    library.reload
+
+    # The orphaned album and artist each bump the version once and append a
+    # correctly-typed deletion row (Req 3.1, 3.5).
+    assert_equal before_version + 2, library.catalog_version
+    assert_equal before_count + 2, library_changes(library).count
+
+    new_changes = library_changes(library).offset(before_count).to_a
+
+    album_change = new_changes.find { |c| c.item_type == "album" }
+    assert_not_nil album_change, "expected a deletion CatalogChange for the orphaned album"
+    assert_equal "deletion", album_change.change_type
+    assert_equal orphan_album.id, album_change.item_id
+
+    artist_change = new_changes.find { |c| c.item_type == "artist" }
+    assert_not_nil artist_change, "expected a deletion CatalogChange for the orphaned artist"
+    assert_equal "deletion", artist_change.change_type
+    assert_equal orphan_artist.id, artist_change.item_id
+  end
+
+  test "catalog version stays in lock-step with the change log across a sequence of changes" do
+    library = Library.default
+
+    # Additions across two artists/albums, a removal, and an orphan-producing
+    # removal, exercising upserts and deletions plus album/artist cleanup.
+    Media.sync(:added, [
+      file_fixture("artist1_album1.flac"),
+      file_fixture("artist1_album1.m4a"),
+      file_fixture("artist2_album3.ogg")
+    ], library_id: library.id)
+
+    Media.sync(:removed, [ file_fixture("artist1_album1.m4a") ], library_id: library.id)
+    Media.sync(:removed, [ file_fixture("artist2_album3.ogg") ], library_id: library.id)
+
+    library.reload
+    changes = library_changes(library).to_a
+
+    # The version equals the number of recorded changes, and the stamped
+    # versions are exactly 1..N with no gaps, duplicates, or reordering.
+    assert_equal changes.count, library.catalog_version
+    assert_equal (1..changes.count).to_a, changes.map(&:version)
+  end
+
+  private
+
+  def library_changes(library)
+    CatalogChange.where(library_id: library.id).order(:version, :id)
+  end
 end

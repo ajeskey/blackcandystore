@@ -28,12 +28,16 @@ class MediaSyncJob < ApplicationJob
 
   private
 
-  def parallel_sync(type, file_paths)
+  # `library_id` is threaded through to `Media.sync` so that per-library scans
+  # (see `LibraryScanJob`) stamp created content with their library. It
+  # defaults to `nil`, which preserves the legacy whole-server sync behavior
+  # where `Media.sync` falls back to the Default_Library.
+  def parallel_sync(type, file_paths, library_id: nil)
     parallel_processor_count = self.class.parallel_processor_count
     grouped_file_paths = (parallel_processor_count > 0) ? file_paths.in_groups(parallel_processor_count, false).compact_blank : [ file_paths ]
 
     Parallel.each grouped_file_paths, in_processes: parallel_processor_count do |paths|
-      Media.sync(type, paths)
+      Media.sync(type, paths, library_id: library_id)
     end
   end
 

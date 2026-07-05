@@ -1,7 +1,7 @@
 <div id='turbo-settings'>
   <h2 class="o-flex o-flex--justify-between o-flex--align-center">
     <span><%= t("label.library") %></span>
-    <%= render partial: "media_syncing/button", locals: { syncing: Media.syncing? } %>
+    <%= render partial: "media_syncing/button", locals: { syncing: Library.scanning? } %>
   </h2>
 
   <%= form_with model: Setting, url: setting_path, method: :put, class: "c-form" do |form| %>

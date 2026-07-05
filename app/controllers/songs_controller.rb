@@ -4,7 +4,7 @@ class SongsController < ApplicationController
   before_action :get_sort_option, only: [ :index ]
 
   def index
-    records = Song.includes(:artist, :album)
+    records = scoped_to_active_library(Song).includes(:artist, :album)
       .filter_records(filter_params)
       .sort_records(*sort_params)
 

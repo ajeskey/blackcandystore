@@ -11,6 +11,8 @@ class Setting < ApplicationRecord
   has_setting :allow_transcode_lossless, type: :boolean, default: false
   has_setting :enable_media_listener, type: :boolean, default: false
   has_setting :enable_parallel_media_sync, type: :boolean, default: false
+  has_setting :enable_daap, type: :boolean, default: false
+  has_setting :enable_rsp, type: :boolean, default: false
 
   validates :transcode_bitrate, inclusion: { in: AVAILABLE_BITRATE_OPTIONS }, allow_nil: true
   validate :media_path_exist

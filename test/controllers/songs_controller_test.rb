@@ -26,6 +26,11 @@ class SongsControllerTest < ActionDispatch::IntegrationTest
     assert_equal song.album.name, song_response["album_name"]
     assert_equal song.artist.name, song_response["artist_name"]
     assert song_response["url"].present?
+    # Resolved stream fields are added alongside the backward-compatible `url` (Req 8.3, 8.10).
+    assert_equal "local", song_response["stream_source"]
+    assert_equal new_stream_path(song_id: song.id), song_response["resolved_stream_path"]
+    assert song_response["available"]
+    assert song_response["resolved_stream_path"].present?
     assert song_response["album_image_urls"]["small"].present?
     assert song_response["album_image_urls"]["medium"].present?
     assert song_response["album_image_urls"]["large"].present?

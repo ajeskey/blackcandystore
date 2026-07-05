@@ -7,6 +7,7 @@ class Artist < ApplicationRecord
   include SearchableConcern
   include ImageableConcern
   include SortableConcern
+  include LibraryScopedConcern
 
   after_initialize :set_default_name, if: :new_record?
 

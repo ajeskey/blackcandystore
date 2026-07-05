@@ -49,6 +49,21 @@ class ArtistsControllerTest < ActionDispatch::IntegrationTest
     assert artist_response["image_urls"]["small"].present?
     assert artist_response["image_urls"]["medium"].present?
     assert artist_response["image_urls"]["large"].present?
+    # Resolved asset fields are added for the cover image (Req 9.2, 9.9).
+    assert_equal "local", artist_response["asset_source"]
+    assert artist_response.key?("resolved_asset_path")
+  end
+
+  test "should include a non-empty resolved asset path for a local artist with a cover image via api" do
+    artist = artists(:artist1)
+    artist.cover_image.attach(fixture_file_upload("cover_image.jpg", "image/jpeg"))
+
+    get artist_url(artist), as: :json, headers: api_token_header(users(:visitor1))
+    response = @response.parsed_body
+
+    assert_response :success
+    assert_equal "local", response["asset_source"]
+    assert response["resolved_asset_path"].present?
   end
 
   test "should update image for artist via api" do
@@ -103,6 +118,8 @@ class ArtistsControllerTest < ActionDispatch::IntegrationTest
     assert response["image_urls"]["small"].present?
     assert response["image_urls"]["medium"].present?
     assert response["image_urls"]["large"].present?
+    assert_equal "local", response["asset_source"]
+    assert response.key?("resolved_asset_path")
     assert_equal artist.albums.ids, response["albums"].map { |album| album["id"] }
   end
 end

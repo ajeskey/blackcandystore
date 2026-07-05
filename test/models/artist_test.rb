@@ -49,9 +49,19 @@ class ArtistTest < ActiveSupport::TestCase
     assert_equal %w[artist1 artist2 various_artists], Artist.sort_records(:invalid).pluck(:name).compact
   end
 
-  test "should not have same name artist" do
+  test "should not have same name artist within the same library" do
+    existing = artists(:artist1)
+
     assert_raise ActiveRecord::RecordNotUnique do
-      Artist.create(name: "artist1")
+      Artist.create(name: existing.name, library_id: existing.library_id)
+    end
+  end
+
+  test "should allow same name artist in different libraries" do
+    existing = artists(:artist1)
+
+    assert_nothing_raised do
+      Artist.create!(name: existing.name, library_id: libraries(:secondary_library).id)
     end
   end
 end

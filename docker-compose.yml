@@ -1,0 +1,43 @@
+# Two-instance Black Candy Store setup for testing multi-server library sharing.
+#
+#   server-a -> http://localhost:3000  (media: docker/media/server-a)
+#   server-b -> http://localhost:3001  (media: docker/media/server-b)
+#
+# Both run the production image (SQLite, data persisted under docker/storage/*).
+# Initial admin for each: admin@admin.com / foobar.
+#
+# SERVER_BASE_URL is the address the *other* server uses to reach this one for
+# cross-server federation (invite redemption, remote browse/stream). On the
+# compose network the containers reach each other by service name over port 80.
+services:
+  server-a:
+    image: blackcandystore:latest
+    build:
+      context: .
+    ports:
+      - "3000:80"
+    environment:
+      SECRET_KEY_BASE: 70adaeb13699b74b334469655f1abf296a5b709a4b1dd8f0152107cda051682a5bb51c76bde1f899b8bd31a64fe70ffc1e0b3e9d0b390a8e5355d0fc02a5366f
+      MEDIA_PATH: /media
+      SERVER_BASE_URL: http://server-a
+    volumes:
+      - ./docker/storage/server-a:/rails/storage
+      - ./docker/media/server-a:/media
+    restart: unless-stopped
+
+  server-b:
+    image: blackcandystore:latest
+    build:
+      context: .
+    ports:
+      - "3001:80"
+    environment:
+      SECRET_KEY_BASE: 27ffe2b1b46f02d767b7a8f563709e6602fa5863e9d3be35074b31f63fe7e5a3373f5351830267108b7d33d995b897ce800ac5d2a968a3eeda27f2baad4bf49d
+      MEDIA_PATH: /media
+      SERVER_BASE_URL: http://server-b
+    volumes:
+      - ./docker/storage/server-b:/rails/storage
+      - ./docker/media/server-b:/media
+    depends_on:
+      - server-a
+    restart: unless-stopped

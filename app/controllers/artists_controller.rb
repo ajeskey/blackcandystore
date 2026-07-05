@@ -6,7 +6,7 @@ class ArtistsController < ApplicationController
   before_action :get_sort_option, only: [ :index ]
 
   def index
-    records = Artist.sort_records(*sort_params).with_attached_cover_image
+    records = scoped_to_active_library(Artist).sort_records(*sort_params).with_attached_cover_image
     @pagy, @artists = pagy(records)
   end
 

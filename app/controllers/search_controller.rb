@@ -6,10 +6,10 @@ class SearchController < ApplicationController
   after_action :set_link_header, only: :index, if: :api_request?
 
   def index
-    searched_albums = Album.search(params[:query]).includes(:artist).with_attached_cover_image
-    searched_artists = Artist.search(params[:query]).with_attached_cover_image
+    searched_albums = scoped_to_active_library(Album.search(params[:query])).includes(:artist).with_attached_cover_image
+    searched_artists = scoped_to_active_library(Artist.search(params[:query])).with_attached_cover_image
     searched_playlists = Playlist.search(params[:query])
-    searched_songs = Song.search(params[:query]).includes(:artist, :album)
+    searched_songs = scoped_to_active_library(Song.search(params[:query])).includes(:artist, :album)
 
     @albums = searched_albums.limit(SEARCH_RESULT_MAX_AMOUNT).load_async
     @is_all_albums = searched_albums.count <= SEARCH_RESULT_MAX_AMOUNT

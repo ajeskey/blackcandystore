@@ -52,6 +52,21 @@ class AlbumsControllerTest < ActionDispatch::IntegrationTest
     assert album_response["image_urls"]["small"].present?
     assert album_response["image_urls"]["medium"].present?
     assert album_response["image_urls"]["large"].present?
+    # Resolved asset fields are added for the cover image (Req 9.2, 9.9).
+    assert_equal "local", album_response["asset_source"]
+    assert album_response.key?("resolved_asset_path")
+  end
+
+  test "should include a non-empty resolved asset path for a local album with a cover image via api" do
+    album = albums(:album1)
+    album.cover_image.attach(fixture_file_upload("cover_image.jpg", "image/jpeg"))
+
+    get album_url(album), as: :json, headers: api_token_header(users(:visitor1))
+    response = @response.parsed_body
+
+    assert_response :success
+    assert_equal "local", response["asset_source"]
+    assert response["resolved_asset_path"].present?
   end
 
   test "should show album via api" do
@@ -69,7 +84,11 @@ class AlbumsControllerTest < ActionDispatch::IntegrationTest
     assert response["image_urls"]["small"].present?
     assert response["image_urls"]["medium"].present?
     assert response["image_urls"]["large"].present?
+    assert_equal "local", response["asset_source"]
+    assert response.key?("resolved_asset_path")
     assert_equal album.song_ids, response["songs"].map { |song| song["id"] }
+    # Each nested song carries its resolved stream fields (Req 8.3).
+    assert(response["songs"].all? { |song| song["stream_source"] == "local" })
   end
 
   test "should update image for album via api" do

@@ -105,6 +105,8 @@ group :test do
   gem "capybara", "~> 3.40.0"
   gem "cuprite", "~> 0.14.3"
   gem "minitest-mock", "~> 5.27.0"
+  # Property-based testing generator (used by the multi-server-library-sharing property tests)
+  gem "rantly", "~> 3.0.0"
   gem "webmock", "~> 3.25.0", require: false
   gem "simplecov", "~> 0.22.0", require: false
   gem "simplecov-lcov", "~> 0.8.0", require: false

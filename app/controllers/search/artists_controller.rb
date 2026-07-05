@@ -2,6 +2,6 @@
 
 class Search::ArtistsController < ApplicationController
   def index
-    @pagy, @artists = pagy(Artist.search(params[:query]).with_attached_cover_image)
+    @pagy, @artists = pagy(scoped_to_active_library(Artist.search(params[:query])).with_attached_cover_image)
   end
 end

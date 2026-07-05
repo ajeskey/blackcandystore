@@ -3,11 +3,20 @@
 require "test_helper"
 
 class AlbumTest < ActiveSupport::TestCase
-  test "should not have same name album on an artist" do
-    artists(:artist1).albums.create(name: "best")
+  test "should not have same name album on an artist within the same library" do
+    library = libraries(:default_library)
+    artists(:artist1).albums.create!(name: "best", library_id: library.id)
 
     assert_raise ActiveRecord::RecordNotUnique do
-      artists(:artist1).albums.create(name: "best")
+      artists(:artist1).albums.create(name: "best", library_id: library.id)
+    end
+  end
+
+  test "should allow same name album on an artist in different libraries" do
+    artists(:artist1).albums.create!(name: "best", library_id: libraries(:default_library).id)
+
+    assert_nothing_raised do
+      artists(:artist1).albums.create!(name: "best", library_id: libraries(:secondary_library).id)
     end
   end
 

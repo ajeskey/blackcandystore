@@ -11,6 +11,24 @@
 
 Black Candy is a self-hosted music streaming server, your personal music center.
 
+> [!NOTE]
+> **Black Candy Store is an expansion of the [Black Candy](https://github.com/blackcandy-org/black_candy) project, not a separate product.** It builds directly on Black Candy and adds multi-library management, cross-server library sharing, and automatic catalog mirroring. Everything that makes Black Candy a great music server — the web player, mobile apps, browsing, playlists, and more — comes from the upstream Black Candy project and its contributors. See [Acknowledgments](#acknowledgments) for full credit.
+
+## Features
+
+Black Candy Store keeps everything Black Candy already offers and layers new multi-library and cross-server capabilities on top. Features introduced by this expansion are marked _(Store)_; everything else is provided by upstream Black Candy.
+
+- **Streaming and browsing** — browse, search, filter, and sort your songs, albums, and artists, and stream them from the web player or the native mobile apps.
+- **Playlists and favorites** — build playlists, manage a playback queue, and favorite the songs you love.
+- **Multiple libraries** _(Store)_ — organize your music into several named libraries, each backed by its own media path, instead of one monolithic collection. Each user browses one active library at a time. Existing single-media-path installs keep working: the pre-existing collection becomes the default library automatically.
+- **Cross-server library sharing** _(Store)_ — share a single library with someone on another Black Candy server using an invite code. They redeem it to browse and play your library as if it were their own, and you can revoke access at any time.
+- **Automatic catalog mirroring** _(Store)_ — when a shared library is redeemed across servers, the redeeming server keeps a fast, local, metadata-only mirror of the remote catalog that stays in sync automatically (a periodic pull plus a best-effort push nudge). Browsing a shared library is served from local queries — no live round-trip per request — while audio and artwork are streamed and proxied live at play time. The mirror stores no audio or artwork bytes.
+- **Source preference** _(Store)_ — when the same track is available from more than one library or server, choose whether to prefer your own server or the highest-quality copy.
+- **Playback modes** — cast audio directly from the player to AirPlay/Chromecast devices (`client_cast`), or have the server play audio to output devices (`server_playback`).
+- **DAAP / RSP media clients** — expose your local, authorized content to external DAAP and RSP clients (each toggleable in settings).
+
+See the [API documentation](docs/api/README.md) for the full HTTP API, including the [Libraries](docs/api/sections/libraries.md), [Sharing](docs/api/sections/sharing.md), and [Playback & source preference](docs/api/sections/playback.md) sections, plus the server-to-server [Federation API](docs/api/sections/federation.md) that powers cross-server sharing and catalog mirroring.
+
 ## Try The Demo
 
 Please visit <https://demo.blackcandy.org> and use demo user (email: admin@admin.com, password: foobar) to log in. And feel free to try it.
@@ -146,6 +164,11 @@ If `SECRET_KEY_BASE` is not set, Black Candy will generate a new one on each sta
 | FORCE_SSL                    | false     | Force all access to the app over SSL.                                                                                                                                                                                                                                                     |
 | DEMO_MODE                    | false     | Whether to enable demo mode, when demo mode is on, all users cannot access administrator privileges, even user is admin. And also users cannot change their profile.                                                                                                                      |
 | HTTP_PORT                    | 80        | The port that Black Candy listens on inside the container. Useful when you want to run Black Candy on a port other than 80.                                                                                                                                                               |
+| SERVER_BASE_URL              | http://localhost:3000 | This server's public base URL. Used for cross-server library sharing: it is encoded into every invite code so a redeeming server knows how to reach this server, and it is used to build this server's catalog-nudge callback URL (`<SERVER_BASE_URL>/nudges`). Set this to your server's real public URL if you share libraries across servers. |
+| CATALOG_SYNC_POLL_INTERVAL   | 15        | How often, in minutes, a redeeming server pulls catalog changes for each active shared-library connection to keep its local mirror in sync. |
+| AR_ENCRYPTION_PRIMARY_KEY    |           | Primary key for Active Record encryption, used to encrypt sensitive data at rest such as the cross-server access token stored for a shared-library connection. Set all three `AR_ENCRYPTION_*` variables in production; if unset, non-secret local development defaults are used (do not rely on these for real data). |
+| AR_ENCRYPTION_DETERMINISTIC_KEY |        | Deterministic key for Active Record encryption. See `AR_ENCRYPTION_PRIMARY_KEY`. |
+| AR_ENCRYPTION_KEY_DERIVATION_SALT |      | Key-derivation salt for Active Record encryption. See `AR_ENCRYPTION_PRIMARY_KEY`. |
 
 ## Edge Version
 
@@ -203,6 +226,14 @@ $ rails lint:all
 ## Integrations
 
 Black Candy support get artist and album image from Discogs API. You can create an API token from Discogs and set Discogs token on Setting page to enable it.
+
+## Acknowledgments
+
+Black Candy Store is an expansion of the [Black Candy](https://github.com/blackcandy-org/black_candy) project, created and maintained by [blackcandy-org](https://github.com/blackcandy-org) and its contributors.
+
+Black Candy provides the entire foundation this work is built on — the streaming server, web player, mobile apps, browsing and search, playlists, and the overall design and polish. This expansion only adds multi-library management, cross-server library sharing, and automatic catalog mirroring on top of that foundation; none of it would be possible without the upstream project.
+
+A huge thank you to the Black Candy team and community for creating and maintaining such a great music server, and for making it open source. If you enjoy Black Candy Store, please consider starring and supporting the [upstream Black Candy project](https://github.com/blackcandy-org/black_candy). Please refer to the upstream repository for its license and terms.
 
 ## Sponsorship
 

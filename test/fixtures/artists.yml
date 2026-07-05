@@ -1,12 +1,15 @@
 artist1:
   name: 'artist1'
+  library: default_library
   created_at: 2023-01-02
 
 artist2:
   name: 'artist2'
+  library: default_library
   created_at: 2023-01-01
 
 various_artists:
   name: 'various_artists'
   various: true
+  library: default_library
   created_at: 2023-01-03

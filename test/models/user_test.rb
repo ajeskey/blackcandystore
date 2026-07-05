@@ -121,6 +121,54 @@ class UserTest < ActiveSupport::TestCase
     assert_equal User::RECENTLY_PLAYED_LIMIT, @user.recently_played_album_ids.count
   end
 
+  test "should persist active library selection across reloads" do
+    library = Library.create!(name: "Owned Library", kind: "local", media_path: Rails.root.join("test", "fixtures", "files").to_s, owner: @user)
+
+    @user.update!(active_library: library)
+
+    assert_equal library, @user.reload.active_library
+  end
+
+  test "should replace previously recorded active library" do
+    media_path = Rails.root.join("test", "fixtures", "files").to_s
+    first = Library.create!(name: "First Owned", kind: "local", media_path: media_path, owner: @user)
+    second = Library.create!(name: "Second Owned", kind: "local", media_path: media_path, owner: @user)
+
+    @user.update!(active_library: first)
+    @user.update!(active_library: second)
+
+    assert_equal second, @user.reload.active_library
+  end
+
+  test "should default to the single accessible library when none recorded" do
+    library = Library.create!(name: "Only Owned", kind: "local", media_path: Rails.root.join("test", "fixtures", "files").to_s, owner: @user)
+
+    assert_nil @user.read_attribute(:active_library_id)
+    assert_equal library, @user.active_library
+    # Selection is persisted so it survives future sessions (Req 3.5, 3.1).
+    assert_equal library.id, @user.reload.read_attribute(:active_library_id)
+  end
+
+  test "should not default active library when user owns multiple libraries" do
+    media_path = Rails.root.join("test", "fixtures", "files").to_s
+    Library.create!(name: "Owned A", kind: "local", media_path: media_path, owner: @user)
+    Library.create!(name: "Owned B", kind: "local", media_path: media_path, owner: @user)
+
+    assert_nil @user.active_library
+  end
+
+  test "should not default active library when user owns no libraries" do
+    assert_nil @user.active_library
+  end
+
+  test "should expose accessible libraries as owned local libraries" do
+    media_path = Rails.root.join("test", "fixtures", "files").to_s
+    owned = Library.create!(name: "Mine", kind: "local", media_path: media_path, owner: @user)
+    Library.create!(name: "Someone Elses", kind: "local", media_path: media_path, owner: users(:visitor1))
+
+    assert_equal [ owned ], @user.accessible_libraries.to_a
+  end
+
   test "should broadcast theme change" do
     assert_no_turbo_stream_broadcasts [ @user, :theme ] do
       @user.update(theme: "auto")

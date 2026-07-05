@@ -5,13 +5,20 @@ require "test_helper"
 class MediaSyncingControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
 
-  test "should sync media" do
+  test "should scan every local library" do
     login users(:admin)
 
-    Media.stub(:syncing?, false) do
-      assert_enqueued_with(job: MediaSyncAllJob) do
-        post media_syncing_url
-      end
+    assert_enqueued_jobs Library.local.count, only: LibraryScanJob do
+      post media_syncing_url
+    end
+  end
+
+  test "should scan only the requested library when a library_id is given" do
+    login users(:admin)
+    library = libraries(:secondary_library)
+
+    assert_enqueued_with(job: LibraryScanJob, args: [ library.id ]) do
+      post media_syncing_url, params: { library_id: library.id }
     end
   end
 
@@ -22,13 +29,12 @@ class MediaSyncingControllerTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "should not sync media when the media is syncing" do
+  test "should not sync media when a library is already syncing" do
     login users(:admin)
+    libraries(:default_library).update!(scan_state: :syncing)
 
-    Media.stub(:syncing?, true) do
-      assert_no_enqueued_jobs do
-        post media_syncing_url
-      end
+    assert_no_enqueued_jobs only: LibraryScanJob do
+      post media_syncing_url
     end
   end
 end

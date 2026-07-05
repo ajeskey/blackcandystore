@@ -6,7 +6,29 @@ class SettingTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "should have AVAILABLE_SETTINGS constant" do
-    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync ], Setting::AVAILABLE_SETTINGS
+    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp ], Setting::AVAILABLE_SETTINGS
+  end
+
+  test "should default enable_daap and enable_rsp to false" do
+    assert_not Setting.enable_daap
+    assert_not Setting.enable_rsp
+  end
+
+  test "should independently toggle enable_daap and enable_rsp" do
+    Setting.update(enable_daap: true)
+
+    assert Setting.enable_daap
+    assert_not Setting.enable_rsp
+
+    Setting.update(enable_rsp: true)
+
+    assert Setting.enable_daap
+    assert Setting.enable_rsp
+
+    Setting.update(enable_daap: false)
+
+    assert_not Setting.enable_daap
+    assert Setting.enable_rsp
   end
 
   test "should get env default value when setting value did not set" do
