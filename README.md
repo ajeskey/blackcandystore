@@ -65,6 +65,18 @@ Native mobile apps for Black Candy Store are coming soon.
 
 ## Configuration
 
+### HTTPS / SSL
+
+Black Candy Store can serve HTTPS with automatic Let's Encrypt certificates out of the box — no reverse proxy or Certbot required. Set `TLS_DOMAIN` to your domain and publish port 443:
+
+```shell
+docker run -p 80:80 -p 443:443 -e TLS_DOMAIN=music.example.com -v ./storage_data:/rails/storage ghcr.io/ajeskey/blackcandystore:edge
+```
+
+The certificate is provisioned on first request and renewed automatically (cached under the persisted `/rails/storage`, so keep that volume mounted). Your domain's DNS must point at the server and ports 80 and 443 must be reachable.
+
+Prefer to terminate TLS at a reverse proxy (Caddy, Nginx + Certbot, Traefik) or bring your own certificate? See the full guide: **[Enabling HTTPS (SSL)](docs/https.md)**.
+
 ### Port Mapping
 
 Black Candy Store exposes port 80. If you want to be able to access it from the host, you can use the `-p` option to map the port.
@@ -143,6 +155,7 @@ If `SECRET_KEY_BASE` is not set, a new one is generated on each startup, which w
 | FORCE_SSL                    | false     | Force all access to the app over SSL.                                                                                                                                                                                                                                                     |
 | DEMO_MODE                    | false     | Whether to enable demo mode; when demo mode is on, all users cannot access administrator privileges, even if the user is admin, and users cannot change their profile.                                                                                                                    |
 | HTTP_PORT                    | 80        | The port that the server listens on inside the container. Useful when you want to run on a port other than 80.                                                                                                                                                                            |
+| TLS_DOMAIN                   |           | Set to your domain (e.g. `music.example.com`) to enable built-in automatic HTTPS with Let's Encrypt certificates via Thruster. When set, the server serves HTTPS on 443 and redirects HTTP to HTTPS; certificates are provisioned and renewed automatically and cached under `/rails/storage`. Leave unset for HTTP only. Accepts a comma-separated list of domains. See [docs/https.md](docs/https.md). |
 | SERVER_BASE_URL              | http://localhost:3000 | This server's public base URL. Used for cross-server library sharing: it is encoded into every invite code so a redeeming server knows how to reach this server, and it is used to build this server's catalog-nudge callback URL (`<SERVER_BASE_URL>/nudges`). Set this to your server's real public URL if you share libraries across servers. |
 | CATALOG_SYNC_POLL_INTERVAL   | 15        | How often, in minutes, a redeeming server pulls catalog changes for each active shared-library connection to keep its local mirror in sync. |
 | AR_ENCRYPTION_PRIMARY_KEY    |           | Primary key for Active Record encryption, used to encrypt sensitive data at rest such as the cross-server access token stored for a shared-library connection. Set all three `AR_ENCRYPTION_*` variables in production; if unset, non-secret local development defaults are used (do not rely on these for real data). |

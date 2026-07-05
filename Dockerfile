@@ -50,7 +50,9 @@ RUN apk add --no-cache \
 
 WORKDIR /rails
 
-EXPOSE 80
+# 80 for HTTP; 443 for HTTPS when Thruster's built-in TLS is enabled via
+# TLS_DOMAIN (see docs/https.md).
+EXPOSE 80 443
 
 # Enable jemalloc for reduced memory usage and latency
 ENV LD_PRELOAD=/usr/lib/libjemalloc.so.2
