@@ -1,0 +1,15 @@
+<%= form_with model: library, class: "c-form", id: "turbo-library-form" do |form| %>
+  <div class='c-form__field'>
+    <%= form.label :name, t("field.name") %>
+    <%= form.text_field :name, class: "c-input" %>
+  </div>
+  <% if library.new_record? %>
+    <div class='c-form__field'>
+      <%= form.label :media_path, t("field.media_path") %>
+      <%= form.text_field :media_path, class: "c-input" %>
+    </div>
+  <% end %>
+  <div class='c-form__field c-form__field--submit'>
+    <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+  </div>
+<% end %>

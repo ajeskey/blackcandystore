@@ -10,8 +10,8 @@ class LibrariesController < ApplicationController
   # Server_Owner. `require_admin` raises BlackCandy::Forbidden for non-admins
   # (and in demo mode), so any create/modify request from a User who is not a
   # Server_Owner is rejected with an authorization error (Req 1.8).
-  before_action :require_admin, only: [ :create, :update, :destroy ]
-  before_action :find_library, only: [ :update, :destroy ]
+  before_action :require_admin, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :find_library, only: [ :edit, :update, :destroy ]
 
   def show
     # Counts reflect only the current User's Active_Library so the library
@@ -41,6 +41,15 @@ class LibrariesController < ApplicationController
     @albums = scoped_to_active_library(Album).includes(:artist).with_attached_cover_image
     @artists = scoped_to_active_library(Artist).with_attached_cover_image
     @songs = scoped_to_active_library(Song).includes(:artist, :album)
+  end
+
+  # Render the new-library form (Server_Owner only).
+  def new
+    @library = Library.new
+  end
+
+  # Render the rename form for an existing Local_Library (Server_Owner only).
+  def edit
   end
 
   # Create a Local_Library owned by the current Server_Owner from the submitted

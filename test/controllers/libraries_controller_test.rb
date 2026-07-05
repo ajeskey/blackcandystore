@@ -277,4 +277,26 @@ class LibrariesControllerTest < ActionDispatch::IntegrationTest
     assert_not Artist.exists?(artist.id)
     assert_not AccessGrant.exists?(grant.id)
   end
+
+  # --- HTML forms for creating/renaming a library are Server_Owner only ---
+
+  test "new and edit render for an admin" do
+    login(users(:admin))
+
+    get new_library_path
+    assert_response :success
+
+    get edit_library_path(@owned_library)
+    assert_response :success
+  end
+
+  test "new and edit are rejected for a non-admin" do
+    login(@user)
+
+    get new_library_path
+    assert_response :forbidden
+
+    get edit_library_path(@owned_library)
+    assert_response :forbidden
+  end
 end

@@ -20,6 +20,10 @@ en:
     recently_played: 'Recently Played'
     library: 'Library'
     libraries: 'Libraries'
+    new_library: 'New Library'
+    rename_library: 'Rename Library'
+    active: 'Active'
+    remote: 'Remote'
     create_playlist: 'Create Playlist'
     edit_playlist: 'Edit Playlist'
     no_items: 'No Items'
@@ -65,6 +69,8 @@ en:
     clear: 'Clear'
     delete: 'Delete'
     save: 'Save'
+    rename: 'Rename'
+    set_active: 'Set Active'
     sync: 'Sync'
     syncing: 'Syncing...'
     play_now: 'Play Now'
@@ -116,6 +122,7 @@ en:
     enable_media_listener: "Media listener can automatically sync with library changes."
     enable_parallel_media_sync: "Parallel media sync only available when using PostgreSQL as database."
     media_listener_running: "Listener is running"
+    confirm_delete_library: "Delete this library? Its songs, and any albums or artists left empty, will be removed."
 
   activerecord:
     errors:

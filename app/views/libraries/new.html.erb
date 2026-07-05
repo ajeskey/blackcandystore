@@ -1,0 +1,7 @@
+<% page_title_tag t("label.new_library") %>
+
+<div class='o-container o-container--extra-narrow'>
+  <h2 class='u-mb-0'><%= t("label.new_library") %></h2>
+  <hr>
+  <%= render partial: "libraries/form", locals: { library: @library } %>
+</div>

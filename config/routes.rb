@@ -15,7 +15,10 @@ Rails.application.routes.draw do
   # named `library_overview` so the canonical `library` helper is free for the
   # plural resource's member routes (show a specific library / rename / delete).
   resource :library, only: [ :show ], as: :library_overview
-  resources :libraries, only: [ :index, :create, :update, :destroy ] do
+  # Select which Library the current User is browsing (their Active_Library,
+  # Req 3.1). Available to any User for a Library they are authorized to access.
+  resource :active_library, only: [ :update ]
+  resources :libraries, only: [ :index, :new, :create, :edit, :update, :destroy ] do
     # Owner-only listing of a Local_Library's Access_Grants (Req 7.1, 7.5).
     resources :access_grants, only: [ :index ]
   end
