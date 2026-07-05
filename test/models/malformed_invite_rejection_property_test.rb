@@ -76,9 +76,9 @@ class MalformedInviteRejectionPropertyTest < ActiveSupport::TestCase
             JSON.generate(sized(range(0, 8)) { string(:alpha) }),
             JSON.generate(Array.new(range(0, 4)) { range(0, 9) }),
             JSON.generate({}),
-            JSON.generate({"u" => sized(range(0, 8)) { string(:alpha) }}),
-            JSON.generate({"t" => sized(range(0, 8)) { string(:alpha) }}),
-            JSON.generate({"u" => range(0, 9), "t" => range(0, 9)})
+            JSON.generate({ "u" => sized(range(0, 8)) { string(:alpha) } }),
+            JSON.generate({ "t" => sized(range(0, 8)) { string(:alpha) } }),
+            JSON.generate({ "u" => range(0, 9), "t" => range(0, 9) })
           )
           Base64.urlsafe_encode64(json, padding: false)
         end

@@ -17,7 +17,7 @@ class CreateLibraryConnections < ActiveRecord::Migration[8.1]
     # Prevent duplicate connections to the same remote library for a user
     # (Req 5.9).
     add_index :library_connections,
-      [:user_id, :server_base_url, :remote_library_id],
+      [ :user_id, :server_base_url, :remote_library_id ],
       unique: true,
       name: "index_library_connections_on_user_and_remote_library"
   end

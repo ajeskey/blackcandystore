@@ -47,15 +47,15 @@ class DeviceDiscoverySidecarTest < ActionDispatch::IntegrationTest
     stub_request(:get, DEVICES_ENDPOINT)
       .to_return(
         status: 200,
-        body: {devices: devices}.to_json,
-        headers: {"Content-Type" => "application/json"}
+        body: { devices: devices }.to_json,
+        headers: { "Content-Type" => "application/json" }
       )
   end
 
   test "discovers and persists devices the sidecar advertises over HTTP (Req 13.1)" do
     stub_sidecar_advertising([
-      {identifier: "airplay-1", name: "Living Room", protocol: "airplay", requires_password: false},
-      {identifier: "cast-1", name: "Kitchen", protocol: "chromecast", requires_password: false}
+      { identifier: "airplay-1", name: "Living Room", protocol: "airplay", requires_password: false },
+      { identifier: "cast-1", name: "Kitchen", protocol: "chromecast", requires_password: false }
     ])
 
     with_env(DeviceDiscovery::SIDECAR_URL_ENV => SIDECAR_URL) do
@@ -77,8 +77,8 @@ class DeviceDiscoverySidecarTest < ActionDispatch::IntegrationTest
   test "adds an appearing device and removes a disappearing one across two cycles (Req 13.3)" do
     # First discovery cycle: the sidecar advertises airplay-1 and cast-1.
     stub_sidecar_advertising([
-      {identifier: "airplay-1", name: "Living Room", protocol: "airplay"},
-      {identifier: "cast-1", name: "Kitchen", protocol: "chromecast"}
+      { identifier: "airplay-1", name: "Living Room", protocol: "airplay" },
+      { identifier: "cast-1", name: "Kitchen", protocol: "chromecast" }
     ])
 
     with_env(DeviceDiscovery::SIDECAR_URL_ENV => SIDECAR_URL) do
@@ -90,8 +90,8 @@ class DeviceDiscoverySidecarTest < ActionDispatch::IntegrationTest
     # Second cycle: cast-1 stops advertising and a new device airplay-2 appears.
     WebMock.reset!
     stub_sidecar_advertising([
-      {identifier: "airplay-1", name: "Living Room", protocol: "airplay"},
-      {identifier: "airplay-2", name: "Bedroom", protocol: "airplay"}
+      { identifier: "airplay-1", name: "Living Room", protocol: "airplay" },
+      { identifier: "airplay-2", name: "Bedroom", protocol: "airplay" }
     ])
 
     with_env(DeviceDiscovery::SIDECAR_URL_ENV => SIDECAR_URL) do
@@ -106,8 +106,8 @@ class DeviceDiscoverySidecarTest < ActionDispatch::IntegrationTest
 
   test "flags a password-protected AirPlay_Device as requiring a password (Req 13.4)" do
     stub_sidecar_advertising([
-      {identifier: "airplay-locked", name: "Office", protocol: "airplay", requires_password: true},
-      {identifier: "airplay-open", name: "Patio", protocol: "airplay", requires_password: false}
+      { identifier: "airplay-locked", name: "Office", protocol: "airplay", requires_password: true },
+      { identifier: "airplay-open", name: "Patio", protocol: "airplay", requires_password: false }
     ])
 
     with_env(DeviceDiscovery::SIDECAR_URL_ENV => SIDECAR_URL) do

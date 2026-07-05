@@ -59,7 +59,7 @@ class ServerPlaybackAudioPathTest < ActionDispatch::IntegrationTest
 
   def stub_play_ok
     stub_request(:post, PLAY_ENDPOINT)
-      .to_return(status: 200, body: {status: "playing"}.to_json, headers: {"Content-Type" => "application/json"})
+      .to_return(status: 200, body: { status: "playing" }.to_json, headers: { "Content-Type" => "application/json" })
   end
 
   # --- Req 14.9: local song decodes from the current server ------------------
@@ -218,7 +218,7 @@ class ServerPlaybackAudioPathTest < ActionDispatch::IntegrationTest
       assert controller.select_devices([ device.id ]).ok?
       assert controller.play(song_id: @local_song.id).ok?
 
-      result = controller.dispatch_audio(credentials: {device.id => "hunter2"})
+      result = controller.dispatch_audio(credentials: { device.id => "hunter2" })
 
       assert result.ok?, "expected dispatch with a supplied credential to succeed"
     end
@@ -230,14 +230,14 @@ class ServerPlaybackAudioPathTest < ActionDispatch::IntegrationTest
 
   test "rejects dispatch with an authentication error when the sidecar reports an incorrect credential (Req 14.8)" do
     device = airplay_device(identifier: "locked-office", requires_password: true)
-    stub_request(:post, PLAY_ENDPOINT).to_return(status: 401, body: {error: "bad_password"}.to_json)
+    stub_request(:post, PLAY_ENDPOINT).to_return(status: 401, body: { error: "bad_password" }.to_json)
 
     with_env(PlaybackSidecar::SIDECAR_URL_ENV => SIDECAR_URL) do
       controller = controller_for(@user)
       assert controller.select_devices([ device.id ]).ok?
       assert controller.play(song_id: @local_song.id).ok?
 
-      result = controller.dispatch_audio(credentials: {device.id => "wrong-password"})
+      result = controller.dispatch_audio(credentials: { device.id => "wrong-password" })
 
       assert result.rejected?
       assert_equal :device_authentication_error, result.error

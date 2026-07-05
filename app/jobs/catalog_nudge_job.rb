@@ -33,7 +33,7 @@ class CatalogNudgeJob < ApplicationJob
   def perform(library_id)
     grants = AccessGrant.active
       .where(library_id: library_id)
-      .where.not(nudge_callback_url: [nil, ""])
+      .where.not(nudge_callback_url: [ nil, "" ])
 
     grants.each { |grant| deliver_nudge(grant) }
   end
@@ -47,8 +47,8 @@ class CatalogNudgeJob < ApplicationJob
   def deliver_nudge(grant)
     HTTParty.post(
       grant.nudge_callback_url,
-      headers: {"Content-Type" => "application/json"},
-      body: {nudge_token: grant.nudge_token}.to_json,
+      headers: { "Content-Type" => "application/json" },
+      body: { nudge_token: grant.nudge_token }.to_json,
       open_timeout: NUDGE_TIMEOUT,
       read_timeout: NUDGE_TIMEOUT
     )

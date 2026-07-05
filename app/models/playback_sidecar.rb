@@ -61,7 +61,7 @@ module PlaybackSidecar
     def play(device_ids:, stream_source:, stream_url:, credentials: {})
       response = HTTParty.post(
         "#{@base_url}#{PLAY_PATH}",
-        headers: {"Content-Type" => "application/json", "Accept" => "application/json"},
+        headers: { "Content-Type" => "application/json", "Accept" => "application/json" },
         body: {
           device_ids: device_ids,
           stream_source: stream_source,

@@ -66,7 +66,7 @@ class CatalogNudgeJobTest < ActiveJob::TestCase
   # --- a catalog change enqueues the nudge (Req 6.1) -------------------------
 
   test "a catalog change enqueues one CatalogNudgeJob for the changed library" do
-    assert_enqueued_with(job: CatalogNudgeJob, args: [@library.id]) do
+    assert_enqueued_with(job: CatalogNudgeJob, args: [ @library.id ]) do
       CatalogVersioning.record_upsert(songs(:mp3_sample))
     end
   end
@@ -84,12 +84,12 @@ class CatalogNudgeJobTest < ActiveJob::TestCase
     # own nudge_token as a JSON body (Req 6.1).
     assert_requested :post, CALLBACK_A,
       times: 1,
-      headers: {"Content-Type" => "application/json"},
-      body: {nudge_token: @grant_a.nudge_token}.to_json
+      headers: { "Content-Type" => "application/json" },
+      body: { nudge_token: @grant_a.nudge_token }.to_json
     assert_requested :post, CALLBACK_B,
       times: 1,
-      headers: {"Content-Type" => "application/json"},
-      body: {nudge_token: @grant_b.nudge_token}.to_json
+      headers: { "Content-Type" => "application/json" },
+      body: { nudge_token: @grant_b.nudge_token }.to_json
 
     # The revoked grant's callback is never contacted, and the callback-less
     # active grant produces no request at all.

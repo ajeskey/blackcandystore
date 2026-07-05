@@ -24,6 +24,6 @@ class AddCatalogVersionAndCreateCatalogChanges < ActiveRecord::Migration[8.1]
 
     # Serves ordered, paginated changes_since(cursor) queries: rows with
     # version > cursor ordered by version ascending, scoped per library.
-    add_index :catalog_changes, [:library_id, :version]
+    add_index :catalog_changes, [ :library_id, :version ]
   end
 end

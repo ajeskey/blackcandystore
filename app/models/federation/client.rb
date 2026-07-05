@@ -84,7 +84,7 @@ module Federation
     # @return [Hash] the parsed confirmation body, e.g.
     #   `{ "library" => {...}, "valid" => true }`
     def confirm_grant(library_id, nudge_callback_url: nil, nudge_token: nil)
-      body = {library_id: library_id}
+      body = { library_id: library_id }
       body[:nudge_callback_url] = nudge_callback_url if nudge_callback_url.present?
       body[:nudge_token] = nudge_token if nudge_token.present?
 
@@ -143,7 +143,7 @@ module Federation
         :get,
         "#{NAMESPACE}/libraries/#{library_id}/changes",
         timeout: CONTENT_TIMEOUT,
-        query: {cursor: cursor, page: page}
+        query: { cursor: cursor, page: page }
       )
 
       parse_json(response)

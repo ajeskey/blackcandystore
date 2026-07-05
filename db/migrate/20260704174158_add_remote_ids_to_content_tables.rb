@@ -15,17 +15,17 @@ class AddRemoteIdsToContentTables < ActiveRecord::Migration[8.1]
     # by library_id is equivalent to scoping by connection. The WHERE clause
     # limits uniqueness to mirrored rows so the many local rows (remote_*_id
     # IS NULL) are never constrained.
-    add_index :songs, [:library_id, :remote_song_id],
+    add_index :songs, [ :library_id, :remote_song_id ],
       unique: true,
       where: "remote_song_id IS NOT NULL",
       name: "index_songs_on_library_id_and_remote_song_id"
 
-    add_index :albums, [:library_id, :remote_album_id],
+    add_index :albums, [ :library_id, :remote_album_id ],
       unique: true,
       where: "remote_album_id IS NOT NULL",
       name: "index_albums_on_library_id_and_remote_album_id"
 
-    add_index :artists, [:library_id, :remote_artist_id],
+    add_index :artists, [ :library_id, :remote_artist_id ],
       unique: true,
       where: "remote_artist_id IS NOT NULL",
       name: "index_artists_on_library_id_and_remote_artist_id"

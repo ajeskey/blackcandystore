@@ -63,7 +63,7 @@ class CatalogSyncTest < ActiveSupport::TestCase
     # The next scheduled sync attempt fails: the host does not respond within
     # the content timeout budget.
     stub_request(:get, CHANGES_URL)
-      .with(query: {cursor: 5, page: 1})
+      .with(query: { cursor: 5, page: 1 })
       .to_timeout
 
     CatalogSync.incremental_sync(@connection)
@@ -82,7 +82,7 @@ class CatalogSyncTest < ActiveSupport::TestCase
       "the last-known Catalog_Mirror must be retained intact while stale"
     assert Song.in_library(@mirror).exists?,
       "browsing a stale connection must still serve its last-known mirror content"
-    assert_equal [1, 2], mirror_song_remote_ids
+    assert_equal [ 1, 2 ], mirror_song_remote_ids
 
     # The Sync_Cursor is left unchanged by the failed attempt.
     assert_equal 5, @connection.sync_cursor
@@ -102,7 +102,7 @@ class CatalogSyncTest < ActiveSupport::TestCase
 
     # --- First attempt fails (transport failure) --------------------------
     failing_stub = stub_request(:get, CHANGES_URL)
-      .with(query: {cursor: 5, page: 1})
+      .with(query: { cursor: 5, page: 1 })
       .to_timeout
 
     CatalogSync.incremental_sync(@connection)
@@ -110,7 +110,7 @@ class CatalogSyncTest < ActiveSupport::TestCase
 
     assert_equal "stale", @connection.sync_state
     assert_equal 5, @connection.sync_cursor, "a failed sync must not advance the cursor"
-    assert_equal [1], mirror_song_remote_ids, "a failed sync must retain the last-known mirror"
+    assert_equal [ 1 ], mirror_song_remote_ids, "a failed sync must retain the last-known mirror"
 
     WebMock.reset!
 
@@ -124,11 +124,11 @@ class CatalogSyncTest < ActiveSupport::TestCase
       song_upsert(2, "song-2", album_id: 1, artist_id: 1)
     ]
     stub_request(:get, CHANGES_URL)
-      .with(query: {cursor: 5, page: 1})
-      .to_return(status: 200, body: {catalog_version: 10, full_sync_required: false, changes: current_catalog}.to_json)
+      .with(query: { cursor: 5, page: 1 })
+      .to_return(status: 200, body: { catalog_version: 10, full_sync_required: false, changes: current_catalog }.to_json)
     stub_request(:get, CHANGES_URL)
-      .with(query: {cursor: 5, page: 2})
-      .to_return(status: 200, body: {catalog_version: 10, full_sync_required: false, changes: []}.to_json)
+      .with(query: { cursor: 5, page: 2 })
+      .to_return(status: 200, body: { catalog_version: 10, full_sync_required: false, changes: [] }.to_json)
 
     CatalogSync.incremental_sync(@connection)
     @connection.reload
@@ -141,9 +141,9 @@ class CatalogSyncTest < ActiveSupport::TestCase
     assert_equal 10, @connection.sync_cursor
 
     # The mirror now matches the host's current Catalog by hosting-side id.
-    assert_equal [1, 2], mirror_song_remote_ids
-    assert_equal [1], mirror_album_remote_ids
-    assert_equal [1], mirror_artist_remote_ids
+    assert_equal [ 1, 2 ], mirror_song_remote_ids
+    assert_equal [ 1 ], mirror_album_remote_ids
+    assert_equal [ 1 ], mirror_artist_remote_ids
   end
 
   private
@@ -161,7 +161,7 @@ class CatalogSyncTest < ActiveSupport::TestCase
   end
 
   def artist_upsert(id, name, is_various: false)
-    {"change_type" => "upsert", "item_type" => "artist", "id" => id, "name" => name, "is_various" => is_various}
+    { "change_type" => "upsert", "item_type" => "artist", "id" => id, "name" => name, "is_various" => is_various }
   end
 
   def album_upsert(id, name, artist_id:)

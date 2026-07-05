@@ -69,7 +69,7 @@ module DeviceDiscovery
     def list_devices
       response = HTTParty.get(
         "#{@base_url}#{DISCOVERY_PATH}",
-        headers: {"Accept" => "application/json"},
+        headers: { "Accept" => "application/json" },
         open_timeout: DISCOVERY_TIMEOUT,
         read_timeout: DISCOVERY_TIMEOUT
       )

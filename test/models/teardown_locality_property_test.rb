@@ -279,7 +279,7 @@ class TeardownLocalityPropertyTest < ActiveSupport::TestCase
   end
 
   def artist_upsert(id, name, is_various: false)
-    {"change_type" => "upsert", "item_type" => "artist", "id" => id, "name" => name, "is_various" => is_various}
+    { "change_type" => "upsert", "item_type" => "artist", "id" => id, "name" => name, "is_various" => is_various }
   end
 
   def album_upsert(id, name, artist_id:)

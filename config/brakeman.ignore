@@ -62,8 +62,29 @@
       "confidence": "Medium",
       "cwe_id": [22],
       "note": "transcode_cache_file_path is constructed entirely server-side from a fixed cache root, song.id, Base64-encoded md5_hash, and Setting.transcode_bitrate. No user-supplied path segments."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "cf30aa5e814cae987bf76541b85b7225115bd61199c90f4f69d4aa668b1408ef",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/federation/songs_controller.rb",
+      "line": 17,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(Stream.new(Song.where(:library_id => @library.id).find(params[:song_id])).file_path)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Federation::SongsController",
+        "method": "stream"
+      },
+      "user_input": null,
+      "confidence": "Medium",
+      "cwe_id": [22],
+      "note": "Federation stream endpoint for a Local_Library song. Song#file_path is populated by the server-side media scanner, never from user input; the request is scoped to the grant-authorized @library and params[:song_id] is used only for Song.find lookup. Mirrors the existing StreamController SendFile ignore."
     }
   ],
-  "updated": "2026-05-14 19:30:00 +0900",
+  "updated": "2026-07-05 20:00:00 +0000",
   "brakeman_version": "8.0.4"
 }

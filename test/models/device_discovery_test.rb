@@ -29,8 +29,8 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "classifies and upserts devices from a stubbed sidecar response (Req 13.1, 13.6)" do
     client = FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "name" => "Living Room", "protocol" => "airplay", "requires_password" => false},
-      {"identifier" => "cast-1", "name" => "Kitchen", "protocol" => "chromecast", "requires_password" => false}
+      { "identifier" => "airplay-1", "name" => "Living Room", "protocol" => "airplay", "requires_password" => false },
+      { "identifier" => "cast-1", "name" => "Kitchen", "protocol" => "chromecast", "requires_password" => false }
     ])
 
     result = DeviceDiscovery.discover(client: client)
@@ -44,8 +44,8 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "records each device's password requirement (Req 13.2, 13.4)" do
     client = FakeSidecarClient.new([
-      {"identifier" => "airplay-locked", "name" => "Office", "protocol" => "airplay", "requires_password" => true},
-      {"identifier" => "airplay-open", "name" => "Patio", "protocol" => "airplay", "requires_password" => false}
+      { "identifier" => "airplay-locked", "name" => "Office", "protocol" => "airplay", "requires_password" => true },
+      { "identifier" => "airplay-open", "name" => "Patio", "protocol" => "airplay", "requires_password" => false }
     ])
 
     DeviceDiscovery.discover(client: client)
@@ -56,8 +56,8 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "returns every reachable device with its classification (Req 13.2)" do
     client = FakeSidecarClient.new([
-      {"identifier" => "a", "protocol" => "airplay", "requires_password" => true},
-      {"identifier" => "b", "protocol" => "chromecast", "requires_password" => false}
+      { "identifier" => "a", "protocol" => "airplay", "requires_password" => true },
+      { "identifier" => "b", "protocol" => "chromecast", "requires_password" => false }
     ])
 
     devices = DeviceDiscovery.available_devices(client: client)
@@ -68,12 +68,12 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "re-discovering an advertised device updates the same row (Req 13.1)" do
     first = FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "name" => "Living Room", "protocol" => "airplay", "requires_password" => false}
+      { "identifier" => "airplay-1", "name" => "Living Room", "protocol" => "airplay", "requires_password" => false }
     ])
     DeviceDiscovery.discover(client: first)
 
     second = FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "name" => "Living Room (renamed)", "protocol" => "airplay", "requires_password" => true}
+      { "identifier" => "airplay-1", "name" => "Living Room (renamed)", "protocol" => "airplay", "requires_password" => true }
     ])
     result = DeviceDiscovery.discover(client: second)
 
@@ -86,15 +86,15 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "removes devices that stop being advertised (Req 13.3)" do
     present = FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "protocol" => "airplay"},
-      {"identifier" => "cast-1", "protocol" => "chromecast"}
+      { "identifier" => "airplay-1", "protocol" => "airplay" },
+      { "identifier" => "cast-1", "protocol" => "chromecast" }
     ])
     DeviceDiscovery.discover(client: present)
     assert_equal 2, OutputDevice.count
 
     # cast-1 stops advertising; only airplay-1 remains.
     remaining = FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "protocol" => "airplay"}
+      { "identifier" => "airplay-1", "protocol" => "airplay" }
     ])
     result = DeviceDiscovery.discover(client: remaining)
 
@@ -105,7 +105,7 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "removes all devices when none are advertised (Req 13.3)" do
     DeviceDiscovery.discover(client: FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "protocol" => "airplay"}
+      { "identifier" => "airplay-1", "protocol" => "airplay" }
     ]))
     assert_equal 1, OutputDevice.count
 
@@ -118,10 +118,10 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "ignores devices that cannot be classified as exactly one protocol (Property 23, Req 13.6)" do
     client = FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "protocol" => "airplay"},
-      {"identifier" => "bt-1", "protocol" => "bluetooth"},
-      {"identifier" => "blank-1", "protocol" => ""},
-      {"identifier" => "", "protocol" => "airplay"}
+      { "identifier" => "airplay-1", "protocol" => "airplay" },
+      { "identifier" => "bt-1", "protocol" => "bluetooth" },
+      { "identifier" => "blank-1", "protocol" => "" },
+      { "identifier" => "", "protocol" => "airplay" }
     ])
 
     result = DeviceDiscovery.discover(client: client)
@@ -141,7 +141,7 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
 
   test "leaves cached devices untouched on a transient sidecar failure (Req 13.5)" do
     DeviceDiscovery.discover(client: FakeSidecarClient.new([
-      {"identifier" => "airplay-1", "protocol" => "airplay"}
+      { "identifier" => "airplay-1", "protocol" => "airplay" }
     ]))
     assert_equal 1, OutputDevice.count
 
@@ -168,11 +168,11 @@ class DeviceDiscoveryTest < ActiveSupport::TestCase
     url = "http://127.0.0.1:9330"
     body = {
       devices: [
-        {identifier: "airplay-1", name: "Living Room", protocol: "airplay", requires_password: true},
-        {identifier: "cast-1", name: "Kitchen", protocol: "chromecast", requires_password: false}
+        { identifier: "airplay-1", name: "Living Room", protocol: "airplay", requires_password: true },
+        { identifier: "cast-1", name: "Kitchen", protocol: "chromecast", requires_password: false }
       ]
     }.to_json
-    stub_request(:get, "#{url}/devices").to_return(status: 200, body: body, headers: {"Content-Type" => "application/json"})
+    stub_request(:get, "#{url}/devices").to_return(status: 200, body: body, headers: { "Content-Type" => "application/json" })
 
     with_env(DeviceDiscovery::SIDECAR_URL_ENV => url) do
       result = DeviceDiscovery.discover

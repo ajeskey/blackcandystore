@@ -16,7 +16,7 @@ class Federation::ClientTest < ActiveSupport::TestCase
 
   test "sends the grant token as a Bearer credential" do
     stub = stub_request(:get, "#{BASE_URL}/federation/ping")
-      .with(headers: {"Authorization" => "Bearer #{TOKEN}"})
+      .with(headers: { "Authorization" => "Bearer #{TOKEN}" })
       .to_return(status: 200, body: "")
 
     assert @client.ping
@@ -26,10 +26,10 @@ class Federation::ClientTest < ActiveSupport::TestCase
   test "confirm_grant posts the library id and returns the parsed body" do
     stub = stub_request(:post, "#{BASE_URL}/federation/grants/confirm")
       .with(
-        headers: {"Authorization" => "Bearer #{TOKEN}"},
-        body: {library_id: 7}.to_json
+        headers: { "Authorization" => "Bearer #{TOKEN}" },
+        body: { library_id: 7 }.to_json
       )
-      .to_return(status: 200, body: {library: {id: 7, name: "Shared"}, valid: true}.to_json)
+      .to_return(status: 200, body: { library: { id: 7, name: "Shared" }, valid: true }.to_json)
 
     body = @client.confirm_grant(7)
     assert_requested(stub)
@@ -49,19 +49,19 @@ class Federation::ClientTest < ActiveSupport::TestCase
 
   test "browse returns parsed JSON list scoped to the library and type" do
     stub_request(:get, "#{BASE_URL}/federation/libraries/7/albums?page=2")
-      .with(headers: {"Authorization" => "Bearer #{TOKEN}"})
-      .to_return(status: 200, body: [{id: 1, name: "A"}].to_json)
+      .with(headers: { "Authorization" => "Bearer #{TOKEN}" })
+      .to_return(status: 200, body: [ { id: 1, name: "A" } ].to_json)
 
-    result = @client.browse(7, :albums, {page: 2})
-    assert_equal [{"id" => 1, "name" => "A"}], result
+    result = @client.browse(7, :albums, { page: 2 })
+    assert_equal [ { "id" => 1, "name" => "A" } ], result
   end
 
   test "stream returns the raw response and forwards range headers" do
     stub = stub_request(:get, "#{BASE_URL}/federation/libraries/7/songs/42/stream")
-      .with(headers: {"Authorization" => "Bearer #{TOKEN}", "Range" => "bytes=0-1023"})
+      .with(headers: { "Authorization" => "Bearer #{TOKEN}", "Range" => "bytes=0-1023" })
       .to_return(status: 200, body: "AUDIOBYTES")
 
-    response = @client.stream(7, 42, {"Range" => "bytes=0-1023"})
+    response = @client.stream(7, 42, { "Range" => "bytes=0-1023" })
     assert_requested(stub)
     assert_equal "AUDIOBYTES", response.body
   end

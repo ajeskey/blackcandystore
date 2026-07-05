@@ -53,12 +53,12 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
     end
 
     # Each active connection gets exactly one job, and it is the incremental mode.
-    assert_enqueued_with(job: CatalogSyncJob, args: [active_a.id, {mode: :incremental}])
-    assert_enqueued_with(job: CatalogSyncJob, args: [active_b.id, {mode: :incremental}])
+    assert_enqueued_with(job: CatalogSyncJob, args: [ active_a.id, { mode: :incremental } ])
+    assert_enqueued_with(job: CatalogSyncJob, args: [ active_b.id, { mode: :incremental } ])
 
     # No job is enqueued for the revoked/unavailable connections.
     enqueued_ids = enqueued_jobs.select { |job| job[:job] == CatalogSyncJob }.map { |job| job[:args].first }
-    assert_equal [active_a.id, active_b.id].sort, enqueued_ids.sort
+    assert_equal [ active_a.id, active_b.id ].sort, enqueued_ids.sort
   end
 
   test "enqueue_all_active enqueues nothing when there are no active connections" do
@@ -110,13 +110,13 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
     connection.update!(sync_cursor: 7)
 
     stub = stub_request(:get, changes_url(100))
-      .with(query: {cursor: 7, page: 1})
-      .to_return(status: 200, body: {catalog_version: 7, full_sync_required: false, changes: []}.to_json)
+      .with(query: { cursor: 7, page: 1 })
+      .to_return(status: 200, body: { catalog_version: 7, full_sync_required: false, changes: [] }.to_json)
     # The pager confirms it has read the whole delta by fetching until a page
     # comes back empty; page 2 (still keyed on the recorded cursor) closes it.
     stub_request(:get, changes_url(100))
-      .with(query: {cursor: 7, page: 2})
-      .to_return(status: 200, body: {catalog_version: 7, full_sync_required: false, changes: []}.to_json)
+      .with(query: { cursor: 7, page: 2 })
+      .to_return(status: 200, body: { catalog_version: 7, full_sync_required: false, changes: [] }.to_json)
 
     # Drive it through the queued entry point in the default (incremental) mode
     # so the whole job -> engine -> client wiring runs.
@@ -140,16 +140,16 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
 
     # The host can no longer serve the recorded cursor incrementally.
     stub_request(:get, changes_url(200))
-      .with(query: {cursor: 3, page: 1})
-      .to_return(status: 200, body: {catalog_version: 20, full_sync_required: true, changes: []}.to_json)
+      .with(query: { cursor: 3, page: 1 })
+      .to_return(status: 200, body: { catalog_version: 20, full_sync_required: true, changes: [] }.to_json)
 
     # The Full_Sync branch browses the host catalog (artists, then albums, then
     # songs), paging until a page comes back empty.
-    artists_stub = stub_browse(200, "artists", 1, [host_artist(1, "artist-1")])
+    artists_stub = stub_browse(200, "artists", 1, [ host_artist(1, "artist-1") ])
     stub_browse(200, "artists", 2, [])
-    albums_stub = stub_browse(200, "albums", 1, [host_album(1, "album-1", artist_id: 1)])
+    albums_stub = stub_browse(200, "albums", 1, [ host_album(1, "album-1", artist_id: 1) ])
     stub_browse(200, "albums", 2, [])
-    songs_stub = stub_browse(200, "songs", 1, [host_song(1, "song-1", album_id: 1, artist_id: 1)])
+    songs_stub = stub_browse(200, "songs", 1, [ host_song(1, "song-1", album_id: 1, artist_id: 1) ])
     stub_browse(200, "songs", 2, [])
 
     CatalogSyncJob.perform_now(connection.id)
@@ -164,9 +164,9 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
     # cursor adopted the version the host reported alongside full_sync_required.
     assert_equal 20, connection.sync_cursor
     assert_equal "fresh", connection.sync_state
-    assert_equal [1], Song.in_library(connection.library).pluck(:remote_song_id)
-    assert_equal [1], Album.in_library(connection.library).pluck(:remote_album_id)
-    assert_equal [1], Artist.in_library(connection.library).pluck(:remote_artist_id)
+    assert_equal [ 1 ], Song.in_library(connection.library).pluck(:remote_song_id)
+    assert_equal [ 1 ], Album.in_library(connection.library).pluck(:remote_album_id)
+    assert_equal [ 1 ], Artist.in_library(connection.library).pluck(:remote_artist_id)
   end
 
   # --- 5. Redemption enqueues a Full_Sync only on new-connection creation ----
@@ -187,7 +187,7 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
     end
 
     assert_not_nil connection
-    assert_enqueued_with(job: CatalogSyncJob, args: [connection.id, {mode: :full}])
+    assert_enqueued_with(job: CatalogSyncJob, args: [ connection.id, { mode: :full } ])
   end
 
   # Req 1.1: re-redemption that reuses an existing connection must NOT re-trigger
@@ -235,16 +235,16 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
 
   def stub_browse(remote_library_id, type, page, rows)
     stub_request(:get, "#{BASE_URL}/federation/libraries/#{remote_library_id}/#{type}")
-      .with(query: {page: page})
-      .to_return(status: 200, body: rows.to_json, headers: {"Content-Type" => "application/json"})
+      .with(query: { page: page })
+      .to_return(status: 200, body: rows.to_json, headers: { "Content-Type" => "application/json" })
   end
 
   def host_artist(id, name, is_various: false)
-    {id: id, name: name, is_various: is_various}
+    { id: id, name: name, is_various: is_various }
   end
 
   def host_album(id, name, artist_id:)
-    {id: id, name: name, year: 2020, genre: "genre-1", artist_id: artist_id, artist_name: "artist-#{artist_id}"}
+    { id: id, name: name, year: 2020, genre: "genre-1", artist_id: artist_id, artist_name: "artist-#{artist_id}" }
   end
 
   def host_song(id, name, album_id:, artist_id:)
@@ -269,8 +269,8 @@ class SchedulerSyncWiringTest < ActiveSupport::TestCase
   def stub_confirm_success(library_id:)
     stub_request(:post, REMOTE_CONFIRM_URL).to_return(
       status: 200,
-      body: {library: {id: library_id, name: "Shared Library"}, valid: true}.to_json,
-      headers: {"Content-Type" => "application/json"}
+      body: { library: { id: library_id, name: "Shared Library" }, valid: true }.to_json,
+      headers: { "Content-Type" => "application/json" }
     )
   end
 end
