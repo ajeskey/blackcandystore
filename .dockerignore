@@ -45,3 +45,6 @@ shell.nix
 # Ignore Kamal files.
 /config/deploy*.yml
 /.kamal
+
+# Local Docker demo (two-server compose) media and runtime storage.
+/docker
