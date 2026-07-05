@@ -22,7 +22,12 @@ class InvitesController < ApplicationController
 
     respond_to do |format|
       format.json { render json: { invite_code: invite_code }, status: :created }
-      format.html { redirect_back_or_to libraries_path, notice: t("notice.created") }
+      format.html do
+        # Carry the freshly generated code to the sharing page so the owner can
+        # copy it. It is shown once and not persisted anywhere retrievable.
+        flash[:invite_code] = invite_code
+        redirect_back_or_to libraries_path, notice: t("notice.created")
+      end
     end
   end
 

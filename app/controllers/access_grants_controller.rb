@@ -19,6 +19,7 @@ class AccessGrantsController < ApplicationController
     @access_grants = InviteManager.access_list(library: @library, owner: Current.user)
 
     respond_to do |format|
+      format.html
       format.json { render json: { access_grants: @access_grants.map { |grant| grant_json(grant) } } }
     end
   end

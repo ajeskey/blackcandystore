@@ -1,0 +1,72 @@
+<% page_title_tag t("label.share_library") %>
+
+<div class='o-container o-container--extra-narrow'>
+  <h2 class='u-mb-0'><%= t("label.share_library") %> — <%= @library.name %></h2>
+  <hr>
+
+  <% if flash[:invite_code].present? %>
+    <div class='c-form__field'>
+      <%= label_tag :generated_invite_code, t("label.invite_code") %>
+      <%= text_field_tag :generated_invite_code, flash[:invite_code], readonly: true, class: "c-input", autocomplete: "off", onclick: "this.select()" %>
+      <small><%= t("text.invite_code_generated") %></small>
+    </div>
+    <hr>
+  <% end %>
+
+  <%= form_with url: invites_path, method: :post, class: "c-form" do |form| %>
+    <%= hidden_field_tag :library_id, @library.id %>
+    <div class='c-form__field'>
+      <%= label_tag :expires_in, t("field.expires_in") %>
+      <%= select_tag :expires_in,
+            options_for_select(
+              [
+                [ "1 hour", 1.hour.to_i ],
+                [ "1 day", 1.day.to_i ],
+                [ "7 days", 7.days.to_i ],
+                [ "30 days", 30.days.to_i ]
+              ],
+              7.days.to_i
+            ),
+            class: "c-input" %>
+    </div>
+    <div class='c-form__field c-form__field--submit'>
+      <%= form.submit t("button.generate_invite"), class: "c-button c-button--primary c-button--full-width" %>
+    </div>
+  <% end %>
+
+  <hr>
+
+  <h3><%= t("label.access") %></h3>
+  <% if @access_grants.present? %>
+    <ul class='c-list c-list--border-none'>
+      <% @access_grants.each do |grant| %>
+        <li class='c-list__item o-flex o-flex--justify-between o-flex--align-center'>
+          <span class='o-flex o-flex--align-center'>
+            <span class='c-badge u-mr-tiny'>
+              <%= if grant.status == "revoked"
+                    t("label.revoked")
+                  elsif grant.expired?
+                    t("label.expired")
+                  elsif grant.redeemed_at.present?
+                    t("label.redeemed")
+                  else
+                    t("label.pending")
+                  end %>
+            </span>
+            <small>
+              <%= t("field.expires_in") %>:
+              <%= grant.expires_at ? grant.expires_at.strftime("%Y-%m-%d %H:%M") : t("label.never") %>
+            </small>
+          </span>
+          <% unless grant.status == "revoked" %>
+            <%= button_to t("button.revoke"), access_grant_path(grant), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("text.confirm_revoke_grant") } } do %>
+              <%= icon_tag "delete", size: "small", title: t("button.revoke") %>
+            <% end %>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <p class='u-text-color-subtle'><%= t("text.no_access_grants") %></p>
+  <% end %>
+</div>

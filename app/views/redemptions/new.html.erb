@@ -1,0 +1,16 @@
+<% page_title_tag t("label.redeem_invite") %>
+
+<div class='o-container o-container--extra-narrow'>
+  <h2 class='u-mb-0'><%= t("label.redeem_invite") %></h2>
+  <hr>
+  <%= form_with url: redemptions_path, method: :post, class: "c-form" do |form| %>
+    <div class='c-form__field'>
+      <%= label_tag :invite_code, t("field.invite_code") %>
+      <%= text_field_tag :invite_code, nil, class: "c-input", autocomplete: "off" %>
+      <small><%= t("text.redeem_help") %></small>
+    </div>
+    <div class='c-form__field c-form__field--submit'>
+      <%= form.submit t("button.redeem"), class: "c-button c-button--primary c-button--full-width" %>
+    </div>
+  <% end %>
+</div>

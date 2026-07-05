@@ -42,7 +42,7 @@ Rails.application.routes.draw do
   # authenticated User (Req 5.1). Revoking an Access_Grant is owner-only
   # (enforced by InviteManager.revoke — Req 7.2, 7.5).
   resources :invites, only: [ :create ]
-  resources :redemptions, only: [ :create ]
+  resources :redemptions, only: [ :new, :create ]
   resources :access_grants, only: [ :destroy ]
 
   resources :artists, only: [ :index, :show, :update ]

@@ -5,9 +5,12 @@
     <% unless native_app? %>
       <h1 class='u-mb-0'><%= t("label.libraries") %></h1>
     <% end %>
-    <% if is_admin? %>
-      <%= link_to t("label.new_library"), new_library_path, class: "c-button c-button--primary" %>
-    <% end %>
+    <span class='o-flex o-flex--align-center'>
+      <%= link_to t("label.redeem_invite"), new_redemption_path, class: "c-button u-mr-tiny" %>
+      <% if is_admin? %>
+        <%= link_to t("label.new_library"), new_library_path, class: "c-button c-button--primary" %>
+      <% end %>
+    </span>
   </div>
 
   <% if @libraries.empty? %>
@@ -32,6 +35,7 @@
               <%= button_to t("button.set_active"), active_library_path, method: :patch, params: { library_id: library.id }, class: "c-button" %>
             <% end %>
             <% if is_admin? && library.local? %>
+              <%= link_to t("button.share"), library_access_grants_path(library), class: "c-button u-ml-tiny" %>
               <%= link_to t("button.rename"), edit_library_path(library), class: "c-button u-ml-tiny" %>
               <% unless library.is_default? %>
                 <%= button_to library_path(library), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("text.confirm_delete_library") } } do %>

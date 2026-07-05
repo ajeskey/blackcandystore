@@ -24,6 +24,15 @@ en:
     rename_library: 'Rename Library'
     active: 'Active'
     remote: 'Remote'
+    redeem_invite: 'Redeem a Code'
+    share_library: 'Share Library'
+    invite_code: 'Invite Code'
+    access: 'Access'
+    pending: 'Pending'
+    redeemed: 'Redeemed'
+    revoked: 'Revoked'
+    expired: 'Expired'
+    never: 'Never'
     create_playlist: 'Create Playlist'
     edit_playlist: 'Edit Playlist'
     no_items: 'No Items'
@@ -71,6 +80,10 @@ en:
     save: 'Save'
     rename: 'Rename'
     set_active: 'Set Active'
+    share: 'Share'
+    revoke: 'Revoke'
+    generate_invite: 'Generate Invite Code'
+    redeem: 'Redeem'
     sync: 'Sync'
     syncing: 'Syncing...'
     play_now: 'Play Now'
@@ -97,6 +110,8 @@ en:
     allow_transcode_lossless: 'Allow Transcode Lossless'
     transcode_bitrate: 'Transcode Bitrate'
     password_confirmation: 'Password Confirmation'
+    invite_code: 'Invite Code'
+    expires_in: 'Expires In'
 
   error:
     login: 'Wrong email or password'
@@ -123,6 +138,10 @@ en:
     enable_parallel_media_sync: "Parallel media sync only available when using PostgreSQL as database."
     media_listener_running: "Listener is running"
     confirm_delete_library: "Delete this library? Its songs, and any albums or artists left empty, will be removed."
+    confirm_revoke_grant: "Revoke this access? The person will lose access to this library."
+    invite_code_generated: "Share this code with the person you want to give access. Anyone who has it can redeem access until it expires or you revoke it."
+    redeem_help: "Paste an invite code you received to gain access to a shared library."
+    no_access_grants: "No one has been given access to this library yet."
 
   activerecord:
     errors:

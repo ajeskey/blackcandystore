@@ -10,6 +10,10 @@
 # rendered by ExceptionRescue. On success the resolved Library (local
 # redemption) or Library_Connection (cross-server redemption) is returned.
 class RedemptionsController < ApplicationController
+  # Render the form for redeeming an invite code.
+  def new
+  end
+
   def create
     result = InviteManager.redeem(invite_code: params[:invite_code], user: Current.user)
 
