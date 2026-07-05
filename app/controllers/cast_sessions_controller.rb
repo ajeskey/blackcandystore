@@ -27,7 +27,10 @@ class CastSessionsController < ApplicationController
     @cast_session.assign_attributes(session_attributes)
     @cast_session.save!
 
-    render json: cast_session_json, status: :created
+    respond_to do |format|
+      format.json { render json: cast_session_json, status: :created }
+      format.html { redirect_back_or_to output_devices_path, notice: t("notice.updated") }
+    end
   end
 
   # Begin/restart casting the current Song and move to `playing` (Req 17.5).
@@ -61,14 +64,19 @@ class CastSessionsController < ApplicationController
   # play/resume with no target Output_Device) the persisted state is left
   # unchanged and an error is returned (Property 20).
   def apply_transition
+    rejected_message = I18n.t("error.cast_transition_rejected", default: "Cast operation was rejected and the session state is unchanged.")
+
     if yield
       @cast_session.save!
-      render json: cast_session_json
+      respond_to do |format|
+        format.json { render json: cast_session_json }
+        format.html { redirect_back_or_to output_devices_path, notice: t("notice.updated") }
+      end
     else
-      render json: {
-        type: "CastTransitionRejected",
-        message: I18n.t("error.cast_transition_rejected", default: "Cast operation was rejected and the session state is unchanged.")
-      }, status: :unprocessable_entity
+      respond_to do |format|
+        format.json { render json: { type: "CastTransitionRejected", message: rejected_message }, status: :unprocessable_entity }
+        format.html { redirect_back_or_to output_devices_path, alert: rejected_message }
+      end
     end
   end
 

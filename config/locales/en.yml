@@ -24,6 +24,11 @@ en:
     rename_library: 'Rename Library'
     active: 'Active'
     remote: 'Remote'
+    playback_devices: 'Playback Devices'
+    unnamed_device: 'Unnamed device'
+    password_required: 'Password'
+    selected: 'Selected'
+    cast_controls: 'Cast Controls'
     redeem_invite: 'Redeem a Code'
     share_library: 'Share Library'
     invite_code: 'Invite Code'
@@ -84,6 +89,10 @@ en:
     share: 'Share'
     revoke: 'Revoke'
     disconnect: 'Disconnect'
+    cast_here: 'Cast Here'
+    play: 'Play'
+    pause: 'Pause'
+    stop: 'Stop'
     generate_invite: 'Generate Invite Code'
     redeem: 'Redeem'
     sync: 'Sync'
@@ -127,6 +136,7 @@ en:
     internal_server_error: "We're sorry, but something went wrong"
     already_in_playlist: "Add to playlist failed, song is already in playlist"
     syncing_in_progress: "Syncing in progress, please wait"
+    cast_transition_rejected: "Cast operation was rejected and the session state is unchanged. Select a device to cast to first."
     unsupported_browser: "Your browser is not supported. Please upgrade your browser to continue."
 
   notice:
@@ -150,10 +160,20 @@ en:
     revoked: 'Access revoked'
     unavailable: 'Unavailable'
 
+  cast_state:
+    stopped: 'Stopped'
+    playing: 'Playing'
+    paused: 'Paused'
+
   text:
     transcoding: "Black candy will transcode formats that are not supported by the browser by default."
     source_preference: "When the same track is available from more than one library or server, choose which copy to stream."
     playback_mode: "Choose where audio plays. Playing on the server requires a running playback sidecar."
+    current_playback_mode: "Current playback mode: %{mode}. Change it in Settings."
+    server_playback_devices: "You are in server playback mode, so audio plays on the server and device output is managed there. Switch to client cast mode to pick a device to cast to from this browser."
+    discovery_unavailable: "No playback sidecar is reachable, so devices on your network can't be discovered right now. Start the playback sidecar to enable AirPlay and Chromecast device discovery."
+    no_output_devices: "No AirPlay or Chromecast devices are currently advertised on your network."
+    cast_state: "Cast status: %{state}"
     media_clients: "Expose your local library content to external DAAP and RSP clients."
     allow_transcode_lossless: "Will transcode lossless format to mp3 to reduce bandwidth."
     enable_media_listener: "Media listener can automatically sync with library changes."

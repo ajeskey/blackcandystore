@@ -1,0 +1,71 @@
+<% page_title_tag t("label.playback_devices") %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("label.playback_devices") %></h1>
+    <% end %>
+    <%= link_to t("label.settings"), setting_path, class: "c-button" %>
+  </div>
+
+  <p class='u-text-color-secondary'>
+    <%= t("text.current_playback_mode", mode: t("playback_mode.#{@playback_mode}")) %>
+  </p>
+
+  <% if @playback_mode == "server_playback" %>
+    <p class='u-text-color-secondary u-mb-wide'><%= t("text.server_playback_devices") %></p>
+  <% end %>
+
+  <% unless @discovery_available %>
+    <p class='u-text-color-secondary u-mb-wide'><%= t("text.discovery_unavailable") %></p>
+  <% end %>
+
+  <% if @devices.empty? %>
+    <% if @discovery_available %>
+      <p class='u-text-color-secondary u-mt-wide'><%= t("text.no_output_devices") %></p>
+    <% end %>
+  <% else %>
+    <ul class='c-list c-list--grouped u-mb-large'>
+      <% @devices.each do |device| %>
+        <li class='c-list__item o-flex o-flex--align-center o-flex--justify-between'>
+          <span class='o-flex o-flex--align-center u-text-size-large'>
+            <%= icon_tag "volume-up", class: "u-mr-tiny" %>
+            <%= device.name.presence || t("label.unnamed_device") %>
+            <span class='c-badge u-ml-tiny'><%= device.protocol %></span>
+            <% if device.requires_password? %>
+              <span class='c-badge u-ml-tiny'><%= t("label.password_required") %></span>
+            <% end %>
+          </span>
+          <% if @playback_mode == "client_cast" %>
+            <span class='o-flex o-flex--align-center'>
+              <% if @cast_session.target_output_device_id == device.id %>
+                <span class='c-badge'><%= t("label.selected") %></span>
+              <% else %>
+                <%= button_to t("button.cast_here"), cast_session_path, method: :post, params: { target_output_device_id: device.id }, class: "c-button" %>
+              <% end %>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+
+  <% if @playback_mode == "client_cast" && @cast_session.target_output_device_id.present? %>
+    <div class='u-mt-wide'>
+      <h2><%= t("label.cast_controls") %></h2>
+      <p class='u-text-color-secondary'>
+        <%= t("text.cast_state", state: t("cast_state.#{@cast_session.state}")) %>
+      </p>
+      <div class='o-flex o-flex--align-center'>
+        <% if @cast_session.state == "playing" %>
+          <%= button_to t("button.pause"), pause_cast_session_path, method: :post, class: "c-button u-mr-tiny" %>
+        <% else %>
+          <%= button_to t("button.play"), play_cast_session_path, method: :post, class: "c-button c-button--primary u-mr-tiny" %>
+        <% end %>
+        <% if @cast_session.active? %>
+          <%= button_to t("button.stop"), stop_cast_session_path, method: :post, class: "c-button" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

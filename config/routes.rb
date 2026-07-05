@@ -42,6 +42,13 @@ Rails.application.routes.draw do
     post :stop
   end
 
+  # The Output_Devices discovered on the local network (Req 13). `index` runs a
+  # Device_Discovery cycle and lists the currently reachable AirPlay/Chromecast
+  # targets, degrading to an empty set when the playback sidecar is absent
+  # (Req 13.5). This is the browser-facing device picker / cast-control hub for
+  # the `client_cast` Playback_Mode.
+  resources :output_devices, only: [ :index ]
+
   # Sharing endpoints. Generating an invite is owner-only (enforced by
   # InviteManager.generate — Req 4.6); redeeming a code is available to any
   # authenticated User (Req 5.1). Revoking an Access_Grant is owner-only

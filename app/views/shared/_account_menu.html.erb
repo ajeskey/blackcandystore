@@ -3,6 +3,7 @@
   <div class='c-dropdown__menu' data-dropdown-target="menu">
     <%= link_to t("label.settings"), setting_path, class: "c-dropdown__item", data: { "bridge--account-target": "menuItem", bridge_id: :settings } %>
     <%= link_to t("label.libraries"), libraries_path, class: "c-dropdown__item", data: { "bridge--account-target": "menuItem", bridge_id: :libraries } %>
+    <%= link_to t("label.playback_devices"), output_devices_path, class: "c-dropdown__item", data: { "bridge--account-target": "menuItem", bridge_id: :playback_devices } %>
     <%= link_to t("label.manage_users"), users_path, class: "c-dropdown__item", data: { "bridge--account-target": "menuItem", bridge_id: :manage_users } if is_admin? %>
     <%= link_to t("label.update_profile"), edit_my_profile_path, class: "c-dropdown__item", data: { "bridge--account-target": "menuItem", bridge_id: :update_profile } %>
     <%= button_to t("button.logout"), my_session_path, method: :delete, form_class: "c-dropdown__item", data: { "bridge--account-target": "menuItem", bridge_id: :logout } %>
