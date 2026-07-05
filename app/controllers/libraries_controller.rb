@@ -35,7 +35,7 @@ class LibrariesController < ApplicationController
   # songs scoped through `scoped_to_active_library` so it stays restricted to
   # what the User is browsing (Req 3.8).
   def index
-    @libraries = authorized_libraries(Current.user).order(:name)
+    @libraries = authorized_libraries(Current.user).includes(:library_connection).order(:name)
     @active_library = Current.user&.active_library
 
     @albums = scoped_to_active_library(Album).includes(:artist).with_attached_cover_image

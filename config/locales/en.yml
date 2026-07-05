@@ -83,6 +83,7 @@ en:
     set_active: 'Set Active'
     share: 'Share'
     revoke: 'Revoke'
+    disconnect: 'Disconnect'
     generate_invite: 'Generate Invite Code'
     redeem: 'Redeem'
     sync: 'Sync'
@@ -144,6 +145,11 @@ en:
     client_cast: 'Cast from this device'
     server_playback: 'Play on the server'
 
+  connection_status:
+    active: 'Connected'
+    revoked: 'Access revoked'
+    unavailable: 'Unavailable'
+
   text:
     transcoding: "Black candy will transcode formats that are not supported by the browser by default."
     source_preference: "When the same track is available from more than one library or server, choose which copy to stream."
@@ -154,6 +160,7 @@ en:
     enable_parallel_media_sync: "Parallel media sync only available when using PostgreSQL as database."
     media_listener_running: "Listener is running"
     confirm_delete_library: "Delete this library? Its songs, and any albums or artists left empty, will be removed."
+    confirm_disconnect_library: "Disconnect this remote library? Its mirrored content will be removed from this server. You can reconnect by redeeming the invite code again."
     confirm_revoke_grant: "Revoke this access? The person will lose access to this library."
     invite_code_generated: "Share this code with the person you want to give access. Anyone who has it can redeem access until it expires or you revoke it."
     redeem_help: "Paste an invite code you received to gain access to a shared library."

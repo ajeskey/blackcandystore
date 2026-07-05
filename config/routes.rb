@@ -22,6 +22,11 @@ Rails.application.routes.draw do
     # Owner-only listing of a Local_Library's Access_Grants (Req 7.1, 7.5).
     resources :access_grants, only: [ :index ]
   end
+  # Disconnect a Remote_Library the current User reached by redeeming an invite.
+  # Destroying the Library_Connection tears down its Catalog_Mirror in full
+  # (Req 9.3). Scoped to Current.user so a User can only remove their own
+  # connections.
+  resources :library_connections, only: [ :destroy ]
   resource :system, only: [ :show ]
 
   # Bookkeeping for the current User's client-side Cast_Session under the

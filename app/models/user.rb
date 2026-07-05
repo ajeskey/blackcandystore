@@ -51,6 +51,11 @@ class User < ApplicationRecord
   # accessible libraries and the default Active_Library selection.
   has_many :owned_libraries, class_name: "Library", foreign_key: :owner_id, inverse_of: :owner, dependent: :nullify
 
+  # Cross-server Library_Connections this user established by redeeming an
+  # Invite_Code (Req 5.2). Destroying one tears down its Catalog_Mirror in full
+  # (Req 9.3), so the association drives both disconnect and user teardown.
+  has_many :library_connections, dependent: :destroy
+
   # The persisted Active_Library selection. Stored as a real column so it
   # survives sessions (Req 3.1). Optional because a user may not have selected
   # one yet, in which case the default-selection logic applies (Req 3.5).
