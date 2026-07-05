@@ -1,5 +1,5 @@
 <p align='center'>
-  <img alt='Black Candy logo' width='200' src='https://raw.githubusercontent.com/blackcandy-org/black_candy/master/app/assets/images/logo.svg'>
+  <img alt='Black Candy Store logo' width='200' src='https://raw.githubusercontent.com/ajeskey/blackcandystore/master/Black-Candy-Store-Logo.png'>
 </p>
 
 # Black Candy
