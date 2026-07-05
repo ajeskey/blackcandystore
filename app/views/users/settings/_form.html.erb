@@ -13,3 +13,19 @@
     <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
   </div>
 <% end %>
+
+<%= form_with url: source_preference_path, method: :patch, class: "c-form" do |form| %>
+  <div class='c-form__field'>
+    <%= label_tag :source_preference, t("field.source_preference") %>
+    <% User::SOURCE_PREFERENCE_OPTIONS.each do |option| %>
+      <div class='c-form__radio'>
+        <%= radio_button_tag :source_preference, option, user.source_preference == option, id: "source_preference_#{option}" %>
+        <%= label_tag "source_preference_#{option}", t("source_preference.#{option}") %>
+      </div>
+    <% end %>
+    <small><%= t("text.source_preference") %></small>
+  </div>
+  <div class='c-form__field c-form__field--submit'>
+    <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+  </div>
+<% end %>

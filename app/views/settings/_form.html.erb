@@ -67,4 +67,22 @@
       <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
     </div>
   <% end %>
+
+  <hr>
+
+  <h2><%= t("label.media_clients") %></h2>
+  <p><%= t("text.media_clients") %></p>
+  <%= form_with model: Setting, url: setting_path, method: :put, class: "c-form" do |form| %>
+    <div class='c-form__field c-form__field--inline'>
+      <%= form.label :enable_daap, t("field.enable_daap") %>
+      <%= form.check_box :enable_daap %>
+    </div>
+    <div class='c-form__field c-form__field--inline'>
+      <%= form.label :enable_rsp, t("field.enable_rsp") %>
+      <%= form.check_box :enable_rsp %>
+    </div>
+    <div class='c-form__field c-form__field--submit'>
+      <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+    </div>
+  <% end %>
 </div>

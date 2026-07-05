@@ -40,6 +40,7 @@ en:
     update_profile: 'Update Profile'
     manage_users: 'Manage Users'
     create_user: 'Create User'
+    media_clients: 'Media Clients'
     no_repeat_mode: 'No repeat mode'
     repeat_mode: 'Repeat mode'
     single_mode: 'Single mode'
@@ -112,6 +113,9 @@ en:
     password_confirmation: 'Password Confirmation'
     invite_code: 'Invite Code'
     expires_in: 'Expires In'
+    source_preference: 'Source Preference'
+    enable_daap: 'Enable DAAP'
+    enable_rsp: 'Enable RSP'
 
   error:
     login: 'Wrong email or password'
@@ -131,8 +135,14 @@ en:
     deleted_from_playlist: 'Deleted from playlist successfully'
     sync_completed: "Media sync completed"
 
+  source_preference:
+    prefer_own_server: 'Prefer my own server'
+    prefer_highest_quality: 'Prefer highest quality'
+
   text:
     transcoding: "Black candy will transcode formats that are not supported by the browser by default."
+    source_preference: "When the same track is available from more than one library or server, choose which copy to stream."
+    media_clients: "Expose your local library content to external DAAP and RSP clients."
     allow_transcode_lossless: "Will transcode lossless format to mp3 to reduce bandwidth."
     enable_media_listener: "Media listener can automatically sync with library changes."
     enable_parallel_media_sync: "Parallel media sync only available when using PostgreSQL as database."
