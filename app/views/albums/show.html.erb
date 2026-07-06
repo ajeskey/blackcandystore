@@ -11,6 +11,33 @@
         <span>,</span>
         <span class='u-text-monospace'><%= format_duration(@album.songs.sum(:duration)) %></span>
       </div>
+
+      <% if @album.audiobook? && @album.enriched? %>
+        <div class='c-card__body__text u-mt-narrow'>
+          <span class='c-badge u-mr-tiny'><%= t("label.audiobook") %></span>
+          <% if @album.enrichment["authors"].present? %>
+            <span><%= t("label.author") %>: <%= Array(@album.enrichment["authors"]).join(", ") %></span>
+          <% end %>
+          <% if @album.enrichment["first_publish_year"].present? %>
+            <span>(<%= @album.enrichment["first_publish_year"] %>)</span>
+          <% end %>
+        </div>
+      <% elsif @album.live? && @album.enriched? %>
+        <div class='c-card__body__text u-mt-narrow'>
+          <% if @album.enrichment["verified"] %>
+            <span class='c-badge u-mr-tiny'><%= t("label.setlist_verified") %></span>
+          <% else %>
+            <span class='c-badge u-mr-tiny'><%= t("label.live") %></span>
+          <% end %>
+          <% if @album.enrichment["venue"].present? %>
+            <span><%= @album.enrichment["venue"] %><%= @album.enrichment["city"].present? ? ", #{@album.enrichment['city']}" : "" %></span>
+          <% end %>
+          <% if @album.enrichment["event_date"].present? %>
+            <span>— <%= @album.enrichment["event_date"] %></span>
+          <% end %>
+        </div>
+      <% end %>
+
       <div class='u-mt-large'>
         <%= button_to(
               t("button.play"),

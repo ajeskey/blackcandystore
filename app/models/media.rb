@@ -58,23 +58,46 @@ class Media
       record_catalog_deletions(removed_artists, "artist") if record_changes
     end
 
+    # Enqueue external metadata/cover enrichment for content lacking it, routing
+    # each album to the right provider based on how ContentClassifier identified
+    # it from its directory tags:
+    #
+    #   * audiobooks -> Open Library (cover + book metadata; no API key needed)
+    #   * live shows -> setlist.fm (setlist/venue validation; needs an API key)
+    #   * music      -> Discogs (the existing default; needs a token)
+    #
+    # Artist covers continue to come from Discogs. Each provider is independent,
+    # so enabling one does not require the others.
     def fetch_external_metadata
-      return unless Setting.discogs_token.present?
-
-      jobs = []
-
-      Artist.lack_metadata.find_each do |artist|
-        jobs << AttachCoverImageFromDiscogsJob.new(artist)
-      end
-
-      Album.lack_metadata.find_each do |album|
-        jobs << AttachCoverImageFromDiscogsJob.new(album)
-      end
-
-      ActiveJob.perform_all_later(jobs)
+      ActiveJob.perform_all_later(external_metadata_jobs)
     end
 
     private
+
+    def external_metadata_jobs
+      album_metadata_jobs + artist_metadata_jobs
+    end
+
+    def album_metadata_jobs
+      Album.lack_metadata.flat_map { |album| album_metadata_job(album) }.compact
+    end
+
+    def album_metadata_job(album)
+      case ContentClassifier.classify_album(album)
+      when ContentClassifier::AUDIOBOOK
+        EnrichAudiobookFromOpenLibraryJob.new(album)
+      when ContentClassifier::LIVE
+        ValidateLiveAlbumFromSetlistFmJob.new(album) if Setting.setlistfm_api_key.present?
+      else
+        AttachCoverImageFromDiscogsJob.new(album) if Setting.discogs_token.present?
+      end
+    end
+
+    def artist_metadata_jobs
+      return [] unless Setting.discogs_token.present?
+
+      Artist.lack_metadata.map { |artist| AttachCoverImageFromDiscogsJob.new(artist) }
+    end
 
     def add_files(file_paths, library_id = nil)
       file_paths.map do |file_path|

@@ -16,6 +16,11 @@ class Album < ApplicationRecord
   has_many :songs, -> { order(:discnum, :tracknum) }, inverse_of: :album, dependent: :destroy
   belongs_to :artist, touch: true
 
+  # External enrichment gathered from a metadata provider (Open Library for
+  # audiobooks, setlist.fm for live recordings). Provider-agnostic JSON so any
+  # provider can persist its validated identity and details here.
+  serialize :enrichment, type: Hash, coder: JSON
+
   search_by :name, associations: { artist: :name }
 
   filter_by :year, :genre
@@ -32,6 +37,24 @@ class Album < ApplicationRecord
 
   def unknown?
     name == UNKNOWN_NAME
+  end
+
+  # The content kind derived from this album's tags (:music, :audiobook, :live).
+  def content_type
+    ContentClassifier.classify_album(self)
+  end
+
+  def audiobook?
+    content_type == ContentClassifier::AUDIOBOOK
+  end
+
+  def live?
+    content_type == ContentClassifier::LIVE
+  end
+
+  # True once a provider has stored enrichment for this album.
+  def enriched?
+    enrichment.present?
   end
 
   private

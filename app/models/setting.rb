@@ -14,6 +14,11 @@ class Setting < ApplicationRecord
   has_setting :enable_daap, type: :boolean, default: false
   has_setting :enable_rsp, type: :boolean, default: false
 
+  # API key for setlist.fm live-music enrichment (setlist validation, venue,
+  # event date). Free for non-commercial use; enrichment is skipped when unset.
+  # Open Library (audiobook enrichment) needs no key, so it has no setting.
+  has_setting :setlistfm_api_key
+
   # The Server's public base URL (hostname/IP + scheme + optional port) encoded
   # into every Invite_Code so a redeeming Server knows how to reach this one
   # (Req 4.3). Configurable at runtime here; falls back to the SERVER_BASE_URL

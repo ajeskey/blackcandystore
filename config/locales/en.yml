@@ -47,6 +47,10 @@ en:
     create_user: 'Create User'
     media_clients: 'Media Clients'
     server: 'Server'
+    audiobook: 'Audiobook'
+    author: 'Author'
+    live: 'Live'
+    setlist_verified: 'Setlist Verified'
     no_repeat_mode: 'No repeat mode'
     repeat_mode: 'Repeat mode'
     single_mode: 'Single mode'
@@ -121,6 +125,7 @@ en:
     enable_media_listener: 'Enable Media Listener'
     enable_parallel_media_sync: 'Enable Parallel Media Sync'
     discogs_token: 'Discogs Token'
+    setlistfm_api_key: 'setlist.fm API Key'
     server_base_url: 'Server Base URL'
     allow_transcode_lossless: 'Allow Transcode Lossless'
     transcode_bitrate: 'Transcode Bitrate'
@@ -173,6 +178,7 @@ en:
     transcoding: "Black candy will transcode formats that are not supported by the browser by default."
     source_preference: "When the same track is available from more than one library or server, choose which copy to stream."
     server_base_url: "The public address other servers use to reach this one, encoded into every invite code (e.g. https://music.example.com). Leave blank to use the SERVER_BASE_URL environment variable. Set this to a hostname or IP that redeemers can actually reach across the network."
+    setlistfm_api_key: "Enables live-music enrichment from setlist.fm (setlist validation, venue, and event date). Free for non-commercial use; get a key at api.setlist.fm. Audiobook enrichment uses Open Library and needs no key."
     playback_mode: "Choose where audio plays. Playing on the server requires a running playback sidecar."
     current_playback_mode: "Current playback mode: %{mode}. Change it in Settings."
     server_playback_devices: "You are in server playback mode, so audio plays on the server and device output is managed there. Switch to client cast mode to pick a device to cast to from this browser."

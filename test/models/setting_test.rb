@@ -6,7 +6,7 @@ class SettingTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "should have AVAILABLE_SETTINGS constant" do
-    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp, :server_base_url ], Setting::AVAILABLE_SETTINGS
+    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp, :setlistfm_api_key, :server_base_url ], Setting::AVAILABLE_SETTINGS
   end
 
   test "should default enable_daap and enable_rsp to false" do

@@ -57,6 +57,11 @@
       <%= form.label :discogs_token, t("field.discogs_token") %>
       <%= form.text_field :discogs_token, value: Setting.discogs_token, class: "c-input" %>
     </div>
+    <div class='c-form__field'>
+      <%= form.label :setlistfm_api_key, t("field.setlistfm_api_key") %>
+      <%= form.text_field :setlistfm_api_key, value: Setting.setlistfm_api_key, class: "c-input", autocomplete: "off" %>
+      <small><%= t("text.setlistfm_api_key") %></small>
+    </div>
     <div class='c-form__field c-form__field--submit'>
       <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
     </div>
