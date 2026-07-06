@@ -1,0 +1,85 @@
+<% page_title_tag @radio_station.name %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= @radio_station.name %></h1>
+    <% end %>
+    <span class='o-flex o-flex--align-center'>
+      <%= link_to t("button.edit"), edit_radio_station_path(@radio_station), class: "c-button u-mr-tiny" %>
+      <%= button_to radio_station_path(@radio_station), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("radio_station.text.confirm_delete") } } do %>
+        <%= icon_tag "delete", size: "small", title: t("button.delete") %>
+      <% end %>
+    </span>
+  </div>
+
+  <ul class='c-list c-list--grouped u-mb-medium'>
+    <li class='c-list__item o-flex o-flex--justify-between o-flex--align-center'>
+      <span><%= t("radio_station.field.state") %></span>
+      <span class='o-flex o-flex--align-center'>
+        <span class='c-badge u-mr-tiny'><%= t("radio_station.state.#{@radio_station.state}") %></span>
+        <% if @radio_station.started? %>
+          <%= button_to t("radio_station.button.stop"), stop_radio_station_path(@radio_station), class: "c-button" %>
+        <% else %>
+          <%= button_to t("radio_station.button.start"), start_radio_station_path(@radio_station), class: "c-button c-button--primary" %>
+        <% end %>
+      </span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("radio_station.field.stream_visibility") %></span>
+      <span class='c-badge'><%= t("radio_station.stream_visibility.#{@radio_station.stream_visibility}") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("radio_station.field.listener_limit") %></span>
+      <span><%= @radio_station.listener_limit || t("radio_station.text.no_listener_limit") %></span>
+    </li>
+  </ul>
+
+  <div class='c-form__field' data-controller='clipboard' data-clipboard-success-message-value='<%= t("button.copied") %>'>
+    <label><%= t("radio_station.field.stream_endpoint_url") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <input type='text' readonly autocomplete='off' class='c-input' data-clipboard-target='source' value='<%= radio_stream_endpoint_url(@radio_station) %>'>
+      <%= tag.button t("button.copy"), type: "button", class: "c-button u-ml-tiny", data: { "clipboard-target": "button", action: "clipboard#copy" } %>
+    </div>
+    <small><%= t("radio_station.text.stream_endpoint_url") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <label><%= t("radio_station.field.stream_token") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <%= button_to t("radio_station.button.rotate_stream_token"), rotate_stream_token_radio_station_path(@radio_station), class: "c-button u-mr-tiny" %>
+      <%= button_to t("radio_station.button.revoke_stream_token"), revoke_stream_token_radio_station_path(@radio_station), class: "c-button", form: { data: { turbo_confirm: t("radio_station.text.confirm_revoke_stream_token") } } %>
+    </div>
+    <small><%= t("radio_station.text.stream_token") %></small>
+  </div>
+
+  <div class='c-form__field' data-controller='radio-station-player'
+       data-radio-station-player-url-value='<%= radio_stream_endpoint_url(@radio_station) %>'
+       data-radio-station-player-playing-text-value='<%= t("radio_station.player.playing") %>'
+       data-radio-station-player-stopped-text-value='<%= t("radio_station.player.stopped") %>'
+       data-radio-station-player-loading-text-value='<%= t("radio_station.player.loading") %>'
+       data-radio-station-player-error-text-value='<%= t("radio_station.player.error") %>'>
+    <label><%= t("radio_station.player.title") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <%= tag.button t("radio_station.button.tune_in"), type: "button", class: "c-button c-button--primary u-mr-tiny", data: { "radio-station-player-target": "playButton", action: "radio-station-player#play" } %>
+      <%= tag.button t("button.stop"), type: "button", class: "c-button u-mr-tiny u-display-none", data: { "radio-station-player-target": "stopButton", action: "radio-station-player#stop" } %>
+      <span data-radio-station-player-target='status'><%= t("radio_station.player.stopped") %></span>
+    </div>
+  </div>
+
+  <h2 class='u-mt-medium'><%= t("radio_station.field.source_criteria") %></h2>
+  <ul class='c-list c-list--grouped'>
+    <% @radio_station.station_source_criteria.each do |criterion| %>
+      <li class='c-list__item o-flex o-flex--justify-between'>
+        <span class='c-badge'><%= t("radio_station.criterion_type.#{criterion.criterion_type}") %></span>
+        <span>
+          <%= case criterion.criterion_type
+              when "artist" then criterion.artist&.name
+              when "song" then criterion.song&.name
+              when "genre" then criterion.genre
+              end %>
+        </span>
+      </li>
+    <% end %>
+  </ul>
+</div>

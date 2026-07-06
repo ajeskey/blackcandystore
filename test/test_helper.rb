@@ -27,6 +27,7 @@ require "rails/test_help"
 require "webmock/minitest"
 require "minitest/mock"
 require_relative "support/property_helper"
+require_relative "support/fake_broadcaster"
 
 allowed_sites_for_webmock = [
   "chromedriver.storage.googleapis.com"

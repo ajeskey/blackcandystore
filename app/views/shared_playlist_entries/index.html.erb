@@ -1,0 +1,70 @@
+<% page_title_tag t("party_session.playlist.title") %>
+
+<%#
+  The Shared_Playlist client for a Party_Session or Co_Listen_Session (Req 5.2,
+  6.6). The Host reaches this page through the normal cookie session and may add,
+  reorder, and remove ANY entry; a Guest reaches it holding a non-cookie Bearer
+  Guest_Token and may add Songs and remove ONLY entries it added, enforced by the
+  server on every request. The `shared-playlist` Stimulus controller mirrors the
+  entries into a client-side Playlist (reusing `playlist.js`) so additions and
+  removals update the list in place, and attaches the stored Guest_Token to its
+  JSON requests when acting as a Guest.
+
+  Songs offered for adding are scoped to the session's shared Libraries (Req 5.3).
+%>
+<% addable_songs = Song.where(library_id: @session.shared_library_ids).order(:name) %>
+
+<div class='o-container o-container--narrow'
+     data-controller='shared-playlist'
+     data-shared-playlist-entries-url-value='<%= shared_playlist_shared_playlist_entries_path(@shared_playlist, format: :json) %>'
+     data-shared-playlist-id-value='<%= @shared_playlist.id %>'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("party_session.playlist.title") %></h1>
+    <% end %>
+  </div>
+
+  <%#
+    Per-device stream player for a Co_Listen_Session participant (Req 7.4, 7.5):
+    a Co_Listen_Session delivers a continuous Shared_Stream to each participant on
+    their own device rather than to a shared Output_Device, so the collaborative
+    page offers a tune-in player alongside the add controls. It reuses the
+    `radio-station-player` Stimulus controller over the session's continuous MP3
+    Stream_Endpoint (always served from its current position). A Party_Session
+    plays to selected Output_Devices and exposes no Stream_Endpoint (Req 9.7), so
+    this block is rendered only for a Co_Listen_Session.
+  %>
+  <% if @session.is_a?(CoListenSession) %>
+    <div class='c-form__field' data-controller='radio-station-player'
+         data-radio-station-player-url-value='<%= stream_co_listen_session_url(@session, format: :mp3) %>'
+         data-radio-station-player-playing-text-value='<%= t("co_listen_session.player.playing") %>'
+         data-radio-station-player-stopped-text-value='<%= t("co_listen_session.player.stopped") %>'
+         data-radio-station-player-loading-text-value='<%= t("co_listen_session.player.loading") %>'
+         data-radio-station-player-error-text-value='<%= t("co_listen_session.player.error") %>'>
+      <label><%= t("co_listen_session.player.title") %></label>
+      <div class='o-flex o-flex--align-center'>
+        <%= tag.button t("co_listen_session.button.tune_in"), type: "button", class: "c-button c-button--primary u-mr-tiny", data: { "radio-station-player-target": "playButton", action: "radio-station-player#play" } %>
+        <%= tag.button t("button.stop"), type: "button", class: "c-button u-mr-tiny u-display-none", data: { "radio-station-player-target": "stopButton", action: "radio-station-player#stop" } %>
+        <span data-radio-station-player-target='status'><%= t("co_listen_session.player.stopped") %></span>
+      </div>
+    </div>
+  <% end %>
+
+  <%= form_with url: shared_playlist_shared_playlist_entries_path(@shared_playlist), class: "c-form", data: { action: "shared-playlist#add" } do |form| %>
+    <div class='c-form__field'>
+      <%= form.label :song_id, t("party_session.playlist.add_song") %>
+      <div class='o-flex o-flex--align-center'>
+        <%= form.select :song_id, addable_songs.map { |song| [ song.name, song.id ] }, { include_blank: t("party_session.playlist.select_song") }, class: "c-input", data: { "shared-playlist-target": "songSelect" } %>
+        <%= form.submit t("party_session.playlist.add_button"), class: "c-button c-button--primary u-ml-tiny" %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @entries.empty? %>
+    <p class='u-text-color-secondary u-mt-wide' data-shared-playlist-target='empty'><%= t("party_session.playlist.empty") %></p>
+  <% end %>
+
+  <ul class='c-list c-list--grouped u-mt-narrow' data-shared-playlist-target='list'>
+    <%= render partial: "shared_playlist_entries/shared_playlist_entry", collection: @entries, as: :shared_playlist_entry, locals: { shared_playlist: @shared_playlist } %>
+  </ul>
+</div>

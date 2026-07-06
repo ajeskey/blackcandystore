@@ -1,4 +1,5 @@
 require_relative "../lib/puma/plugin/media_listener"
+require_relative "../lib/puma/plugin/resume_streams"
 
 # Puma starts a configurable number of processes (workers) and each process
 # serves each request in a thread from an internal thread pool.
@@ -40,6 +41,8 @@ plugin :tmp_restart
 plugin :solid_queue
 
 plugin :media_listener
+
+plugin :resume_streams
 
 # Specify the PID file. Defaults to tmp/pids/server.pid in development.
 # In other environments, only set the PID file if requested.

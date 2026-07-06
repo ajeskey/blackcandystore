@@ -17,6 +17,8 @@ services:
     environment:
       # Where the app finds the sidecar (loopback under host networking).
       PLAYBACK_SIDECAR_URL: http://127.0.0.1:9330
+      # Where the app finds the broadcaster (loopback under host networking).
+      BROADCASTER_URL: http://127.0.0.1:9340
       # Public base URL of the app; the sidecar joins stream paths to this.
       SERVER_BASE_URL: http://127.0.0.1:3000
     volumes:
@@ -32,5 +34,16 @@ services:
     environment:
       SIDECAR_PORT: "9330"
       # Where the sidecar fetches audio from the app.
+      BLACK_CANDY_URL: http://127.0.0.1:3000
+    restart: unless-stopped
+
+  broadcaster:
+    build: ./broadcaster
+    # Or use a prebuilt image once published:
+    # image: ghcr.io/ajeskey/blackcandystore-broadcaster:latest
+    network_mode: host
+    environment:
+      BROADCASTER_PORT: "9340"
+      # Where the broadcaster fetches source audio from the app.
       BLACK_CANDY_URL: http://127.0.0.1:3000
     restart: unless-stopped

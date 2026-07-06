@@ -6,7 +6,20 @@ class SettingTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "should have AVAILABLE_SETTINGS constant" do
-    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp, :setlistfm_api_key, :server_base_url ], Setting::AVAILABLE_SETTINGS
+    assert_equal [ :media_path, :discogs_token, :transcode_bitrate, :allow_transcode_lossless, :enable_media_listener, :enable_parallel_media_sync, :enable_daap, :enable_rsp, :setlistfm_api_key, :server_base_url, :max_concurrent_streams ], Setting::AVAILABLE_SETTINGS
+  end
+
+  # Admin/global concurrency cap for Radio_Station and Co_Listen_Session
+  # broadcasts (Req 10.5). Registered via has_setting with no default, so it
+  # reports nil (unbounded) until an Admin configures it.
+  test "max_concurrent_streams defaults to nil when unset" do
+    assert_nil Setting.max_concurrent_streams
+  end
+
+  test "max_concurrent_streams is stored as an integer once set" do
+    Setting.update(max_concurrent_streams: "5")
+
+    assert_equal 5, Setting.max_concurrent_streams
   end
 
   test "should default enable_daap and enable_rsp to false" do

@@ -49,6 +49,9 @@ application.register("flash", FlashController)
 import FormController from "./form_controller"
 application.register("form", FormController)
 
+import GuestSessionController from "./guest_session_controller"
+application.register("guest-session", GuestSessionController)
+
 import MediaSessionController from "./media_session_controller"
 application.register("media-session", MediaSessionController)
 
@@ -61,8 +64,17 @@ application.register("player", PlayerController)
 import PlaylistSortableController from "./playlist_sortable_controller"
 application.register("playlist-sortable", PlaylistSortableController)
 
+import RadioStationCriteriaController from "./radio_station_criteria_controller"
+application.register("radio-station-criteria", RadioStationCriteriaController)
+
+import RadioStationPlayerController from "./radio_station_player_controller"
+application.register("radio-station-player", RadioStationPlayerController)
+
 import SearchController from "./search_controller"
 application.register("search", SearchController)
+
+import SharedPlaylistController from "./shared_playlist_controller"
+application.register("shared-playlist", SharedPlaylistController)
 
 import SongsController from "./songs_controller"
 application.register("songs", SongsController)

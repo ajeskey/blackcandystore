@@ -1,0 +1,33 @@
+<%#
+  A single Shared_Playlist_Entry row (Req 6.3, 5.12). Uses only locals so it can
+  be re-rendered on its own. `shared_playlist_entry` is the entry; `shared_playlist`
+  is its playlist (passed alongside the collection) so the mutation paths resolve.
+  Remove/reorder are posted to SharedPlaylistEntriesController, which enforces
+  authority — the Host may act on any entry, a Guest only on entries it added
+  (Req 6.6). `data-added-by-guest-id` lets the guest client hide controls for
+  entries the current Guest did not add.
+%>
+<li class='c-list__item o-flex o-flex--align-center o-flex--justify-between'
+    data-shared-playlist-target='item'
+    data-entry-id='<%= shared_playlist_entry.id %>'
+    data-song-id='<%= shared_playlist_entry.song_id %>'
+    data-added-by-guest-id='<%= shared_playlist_entry.added_by_guest_id %>'>
+  <span class='o-flex o-flex--align-center'>
+    <%= icon_tag "music-note", class: "u-mr-tiny" %>
+    <span>
+      <%= Song.find_by(id: shared_playlist_entry.song_id)&.name %>
+      <small class='u-text-color-secondary u-display-block'><%= t("party_session.playlist.added_by", name: shared_playlist_entry.adder_name) %></small>
+    </span>
+  </span>
+  <span class='o-flex o-flex--align-center'>
+    <%= button_to shared_playlist_shared_playlist_entry_path(shared_playlist, shared_playlist_entry), method: :patch, params: { position: shared_playlist_entry.position - 1 }, class: "c-button c-button--icon u-mr-tiny" do %>
+      <%= icon_tag "expand-less", size: "small", title: t("party_session.playlist.move_up") %>
+    <% end %>
+    <%= button_to shared_playlist_shared_playlist_entry_path(shared_playlist, shared_playlist_entry), method: :patch, params: { position: shared_playlist_entry.position + 1 }, class: "c-button c-button--icon u-mr-tiny" do %>
+      <%= icon_tag "expand-more", size: "small", title: t("party_session.playlist.move_down") %>
+    <% end %>
+    <%= button_to shared_playlist_shared_playlist_entry_path(shared_playlist, shared_playlist_entry), method: :delete, class: "c-button c-button--icon", data: { action: "shared-playlist#remove" } do %>
+      <%= icon_tag "delete", size: "small", title: t("button.delete") %>
+    <% end %>
+  </span>
+</li>

@@ -1,0 +1,35 @@
+<% page_title_tag t("co_listen_session.label.co_listen_sessions") %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("co_listen_session.label.co_listen_sessions") %></h1>
+    <% end %>
+    <%= link_to t("co_listen_session.label.new_co_listen_session"), new_co_listen_session_path, class: "c-button c-button--primary" %>
+  </div>
+
+  <% if @co_listen_sessions.empty? %>
+    <div class='u-mt-wide'>
+      <%= empty_alert_tag has_icon: true, has_overlay: false %>
+    </div>
+  <% else %>
+    <ul class='c-list c-list--grouped'>
+      <% @co_listen_sessions.each do |co_listen_session| %>
+        <li class='c-list__item o-flex o-flex--align-center o-flex--justify-between'>
+          <%= link_to co_listen_session_path(co_listen_session), class: "o-flex o-flex--align-center u-text-size-large" do %>
+            <%= icon_tag "music-note", class: "u-mr-tiny" %>
+            <%= t("co_listen_session.label.session_number", id: co_listen_session.id) %>
+          <% end %>
+          <span class='o-flex o-flex--align-center'>
+            <span class='c-badge u-mr-tiny'><%= t("co_listen_session.state.#{co_listen_session.state}") %></span>
+            <% if co_listen_session.active? %>
+              <%= button_to t("co_listen_session.button.deactivate"), deactivate_co_listen_session_path(co_listen_session), class: "c-button" %>
+            <% else %>
+              <%= button_to t("co_listen_session.button.activate"), activate_co_listen_session_path(co_listen_session), class: "c-button c-button--primary" %>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

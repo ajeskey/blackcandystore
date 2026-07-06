@@ -49,6 +49,80 @@ Rails.application.routes.draw do
   # the `client_cast` Playback_Mode.
   resources :output_devices, only: [ :index ]
 
+  # --- Radio Stations, Party & Co-listen Modes (radio-party-colisten spec) ---
+  # The client-agnostic JSON + Hotwire API_Surface for the three social-listening
+  # capabilities (Req 9.1). Each controller answers both `format.html` (Turbo) and
+  # `format.json` under identical authorization (Req 9.4, 9.5).
+
+  # Radio_Station configuration + lifecycle (Req 1, 9.1, 10, 11). CRUD plus:
+  # start/stop drive the Station_State machine (Req 10.1, 10.2); rotate/revoke
+  # manage the station's keyed-digest Stream_Token (Req 11.5). The member
+  # `stream` route is the station's Stream_Endpoint: it exists for every station
+  # regardless of state (Req 9.6) and accepts the `.mp3` extension used by generic
+  # Icecast/SHOUTcast clients, but audio is delivered only while `started`
+  # (Req 3.6) — served by StreamEndpointController (task 9.4).
+  resources :radio_stations do
+    member do
+      post :start
+      post :stop
+      post :rotate_stream_token
+      post :revoke_stream_token
+      get :stream, to: "stream_endpoint#radio_station"
+    end
+  end
+
+  # Co_Listen_Session — the shared, always-on collaborative stream (Req 7, 9.1,
+  # 10.7, 10.8). CRUD plus activate/deactivate (Session_State machine) and
+  # share-link generation for admitting Guests. Like a Radio_Station it exposes a
+  # Stream_Endpoint for every session regardless of state (Req 9.6), delivering
+  # audio only while `active`; a co-listen stream is never public and is
+  # authorized by a guest-derived Stream_Token (Req 11.8, 11.9). Guests
+  # contribute to the session's Shared_Playlist through nested
+  # shared_playlist_entries (add/remove/reorder).
+  resources :co_listen_sessions do
+    member do
+      post :activate
+      post :deactivate
+      post :generate_share_link
+      get :stream, to: "stream_endpoint#co_listen_session"
+    end
+  end
+
+  # Shared_Playlist contribution surface (Req 5.2, 6.6, 9.1). A Party_Session
+  # and a Co_Listen_Session each own a Shared_Playlist (polymorphic), so entries
+  # are nested under the Shared_Playlist itself (`shared_playlist_id`) rather
+  # than under either session kind, matching SharedPlaylistEntriesController's
+  # lookup. The Host and admitted Guests add (`create`), remove (`destroy`), and
+  # reorder (`update` — reposition an entry) individual Songs; `index` lists the
+  # playlist in order.
+  resources :shared_playlists, only: [] do
+    resources :shared_playlist_entries, only: [ :index, :create, :update, :destroy ]
+  end
+
+  # Party_Session — a host shares a link and Guests add Songs to a Shared_Playlist
+  # that streams to host-selected Output_Devices (Req 4, 6, 9.1). CRUD plus
+  # share-link generation and revocation (Req 4.2, 4.6), host-only device
+  # selection (Req 6.2) and host-only transport control — stop/pause/skip
+  # (Req 6.5, 6.8). A Party_Session deliberately exposes NO Stream_Endpoint,
+  # because it plays to devices rather than per-Listener streams (Req 9.7).
+  resources :party_sessions do
+    member do
+      post :generate_share_link
+      post :revoke
+      post :select_output_devices
+      post :stop
+      post :pause
+      post :skip
+    end
+  end
+
+  # Guest join via a Share_Link (Req 5.1, 5.2, 9.2). Opening the link shows the
+  # join page; POSTing admits the Guest (if the backing Access_Grant is usable and
+  # the session has capacity) and issues a non-cookie Bearer Guest_Token bound to
+  # the new Guest record.
+  get "join/:token", to: "share_link_redemptions#show", as: :guest_join
+  post "join/:token", to: "share_link_redemptions#create", as: :guest_admit
+
   # Sharing endpoints. Generating an invite is owner-only (enforced by
   # InviteManager.generate — Req 4.6); redeeming a code is available to any
   # authenticated User (Req 5.1). Revoking an Access_Grant is owner-only
