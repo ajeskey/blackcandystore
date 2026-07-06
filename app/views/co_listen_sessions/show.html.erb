@@ -1,0 +1,151 @@
+<% page_title_tag t("co_listen_session.label.session_number", id: @co_listen_session.id) %>
+
+<%#
+  The Stream_Endpoint URL is exposed for every session regardless of its
+  active/ended state (Req 9.6); audio is delivered there only while the session
+  is active. A Co_Listen_Session stream is never public — it is authorized by a
+  per-participant guest-derived Stream_Token (Req 11.8) — so this base URL is the
+  path participants tune into once they have joined.
+%>
+<% stream_endpoint_url = stream_co_listen_session_url(@co_listen_session, format: :mp3) %>
+<% shared_libraries = Library.where(id: @co_listen_session.shared_library_ids).order(:name) %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("co_listen_session.label.session_number", id: @co_listen_session.id) %></h1>
+    <% end %>
+    <span class='o-flex o-flex--align-center'>
+      <%= link_to t("button.edit"), edit_co_listen_session_path(@co_listen_session), class: "c-button u-mr-tiny" %>
+      <%= button_to co_listen_session_path(@co_listen_session), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("co_listen_session.text.confirm_delete") } } do %>
+        <%= icon_tag "delete", size: "small", title: t("button.delete") %>
+      <% end %>
+    </span>
+  </div>
+
+  <ul class='c-list c-list--grouped u-mb-medium'>
+    <li class='c-list__item o-flex o-flex--justify-between o-flex--align-center'>
+      <span><%= t("co_listen_session.field.state") %></span>
+      <span class='o-flex o-flex--align-center'>
+        <span class='c-badge u-mr-tiny'><%= t("co_listen_session.state.#{@co_listen_session.state}") %></span>
+        <% if @co_listen_session.active? %>
+          <%= button_to t("co_listen_session.button.deactivate"), deactivate_co_listen_session_path(@co_listen_session), class: "c-button" %>
+        <% else %>
+          <%= button_to t("co_listen_session.button.activate"), activate_co_listen_session_path(@co_listen_session), class: "c-button c-button--primary" %>
+        <% end %>
+      </span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.session_duration") %></span>
+      <span>
+        <% if @co_listen_session.duration_perpetual? %>
+          <%= t("co_listen_session.session_duration_kind.perpetual") %>
+        <% else %>
+          <%= "#{@co_listen_session.session_duration_value} #{t("co_listen_session.session_duration_kind.#{@co_listen_session.session_duration_kind}")}" %>
+        <% end %>
+      </span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.duplicate_policy") %></span>
+      <span class='c-badge'><%= t("co_listen_session.duplicate_policy.#{@co_listen_session.duplicate_policy}") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.max_guests") %></span>
+      <span><%= @co_listen_session.max_guests || t("co_listen_session.text.unbounded") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.guest_add_quota") %></span>
+      <span><%= @co_listen_session.guest_add_quota || t("co_listen_session.text.unbounded") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.guest_add_rate_per_minute") %></span>
+      <span><%= @co_listen_session.guest_add_rate_per_minute || t("co_listen_session.text.unbounded") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.listener_limit") %></span>
+      <span><%= @co_listen_session.listener_limit || t("co_listen_session.text.no_listener_limit") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("co_listen_session.field.shared_libraries") %></span>
+      <span>
+        <% if shared_libraries.empty? %>
+          <%= t("label.no_items") %>
+        <% else %>
+          <%= shared_libraries.map(&:name).join(", ") %>
+        <% end %>
+      </span>
+    </li>
+  </ul>
+
+  <div class='c-form__field' data-controller='clipboard' data-clipboard-success-message-value='<%= t("button.copied") %>'>
+    <label><%= t("co_listen_session.field.stream_endpoint_url") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <input type='text' readonly autocomplete='off' class='c-input' data-clipboard-target='source' value='<%= stream_endpoint_url %>'>
+      <%= tag.button t("button.copy"), type: "button", class: "c-button u-ml-tiny", data: { "clipboard-target": "button", action: "clipboard#copy" } %>
+    </div>
+    <small><%= t("co_listen_session.text.stream_endpoint_url") %></small>
+  </div>
+
+  <%#
+    Per-device stream player (Req 7.4, 7.5). Reuses the `radio-station-player`
+    Stimulus controller — a single Howl over the continuous MP3 Stream_Endpoint,
+    always served from its current position — so each participant listens on
+    their own device rather than a shared Output_Device.
+  %>
+  <div class='c-form__field' data-controller='radio-station-player'
+       data-radio-station-player-url-value='<%= stream_endpoint_url %>'
+       data-radio-station-player-playing-text-value='<%= t("co_listen_session.player.playing") %>'
+       data-radio-station-player-stopped-text-value='<%= t("co_listen_session.player.stopped") %>'
+       data-radio-station-player-loading-text-value='<%= t("co_listen_session.player.loading") %>'
+       data-radio-station-player-error-text-value='<%= t("co_listen_session.player.error") %>'>
+    <label><%= t("co_listen_session.player.title") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <%= tag.button t("co_listen_session.button.tune_in"), type: "button", class: "c-button c-button--primary u-mr-tiny", data: { "radio-station-player-target": "playButton", action: "radio-station-player#play" } %>
+      <%= tag.button t("button.stop"), type: "button", class: "c-button u-mr-tiny u-display-none", data: { "radio-station-player-target": "stopButton", action: "radio-station-player#stop" } %>
+      <span data-radio-station-player-target='status'><%= t("co_listen_session.player.stopped") %></span>
+    </div>
+  </div>
+
+  <%#
+    Share_Link management (Req 4.2, 8.1). Generating mints one Access_Grant-backed
+    link per shared library; only its keyed digest is persisted, so the plaintext
+    join token is available exactly once through the JSON API response (Req 8.7).
+    The list below reflects each link's backing-grant lifecycle (usable/revoked/
+    expired) so the Host can see which links still admit new Guests (Req 8.5).
+  %>
+  <div class='c-form__field'>
+    <label><%= t("co_listen_session.field.share_links") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <%= button_to t("co_listen_session.button.generate_share_link"), generate_share_link_co_listen_session_path(@co_listen_session), class: "c-button c-button--primary" %>
+    </div>
+    <small><%= t("co_listen_session.text.share_links") %></small>
+
+    <% if @co_listen_session.share_links.any? %>
+      <ul class='c-list c-list--grouped u-mt-tiny'>
+        <% @co_listen_session.share_links.includes(:access_grant).each do |share_link| %>
+          <li class='c-list__item o-flex o-flex--justify-between o-flex--align-center'>
+            <span><%= Library.find_by(id: share_link.access_grant&.library_id)&.name || t("label.library") %></span>
+            <span class='o-flex o-flex--align-center'>
+              <span class='c-badge u-mr-tiny'><%= share_link.usable? ? t("co_listen_session.share_link_state.usable") : t("co_listen_session.share_link_state.inactive") %></span>
+              <span><%= share_link.access_grant&.expires_at ? l(share_link.access_grant.expires_at, format: :short) : t("label.never") %></span>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <%#
+    Shared_Playlist management (Req 7.3). Links to the collaborative playlist the
+    Host and admitted participants contribute to. The playlist is retained after
+    teardown for host review (Req 12.3).
+  %>
+  <% if @co_listen_session.shared_playlist.present? %>
+    <div class='c-form__field'>
+      <label><%= t("co_listen_session.field.shared_playlist") %></label>
+      <div class='o-flex o-flex--align-center'>
+        <%= link_to t("co_listen_session.button.manage_playlist"), shared_playlist_shared_playlist_entries_path(@co_listen_session.shared_playlist), class: "c-button" %>
+      </div>
+    </div>
+  <% end %>
+</div>

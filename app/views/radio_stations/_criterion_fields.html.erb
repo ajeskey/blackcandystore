@@ -1,0 +1,46 @@
+<%#
+  A single Station_Source_Criteria row of the source-criteria builder (Req 1.2).
+  `criterion` is a StationSourceCriterion for an existing row, or nil for the
+  blank <template> row cloned by the `radio-station-criteria` Stimulus
+  controller.
+
+  Every row submits all four keys (criterion_type, artist_id, song_id, genre)
+  exactly once, in this fixed order, so Rails groups them into one hash per row
+  under `radio_station[criteria][]` (RadioStationsController#criteria_attributes).
+  The value inputs not relevant to the selected type are hidden but still submit
+  a blank value, keeping the per-row key set consistent.
+%>
+<% type = criterion&.criterion_type || "artist" %>
+<div class='c-radio-criterion o-flex o-flex--align-center u-mb-tiny' data-criterion-row>
+  <select name='radio_station[criteria][][criterion_type]' class='c-input u-mr-tiny' data-action='change->radio-station-criteria#typeChanged'>
+    <% %w[artist song genre].each do |option| %>
+      <option value='<%= option %>' <%= "selected" if type == option %>><%= t("radio_station.criterion_type.#{option}") %></option>
+    <% end %>
+  </select>
+
+  <span class='c-radio-criterion__value u-flex-1' data-criterion-value='artist' <%= "hidden" unless type == "artist" %>>
+    <select name='radio_station[criteria][][artist_id]' class='c-input c-input--full-width'>
+      <option value=''><%= t("radio_station.select_artist") %></option>
+      <% artists.each do |artist| %>
+        <option value='<%= artist.id %>' <%= "selected" if criterion&.artist_id == artist.id %>><%= artist.name %></option>
+      <% end %>
+    </select>
+  </span>
+
+  <span class='c-radio-criterion__value u-flex-1' data-criterion-value='song' <%= "hidden" unless type == "song" %>>
+    <select name='radio_station[criteria][][song_id]' class='c-input c-input--full-width'>
+      <option value=''><%= t("radio_station.select_song") %></option>
+      <% songs.each do |song| %>
+        <option value='<%= song.id %>' <%= "selected" if criterion&.song_id == song.id %>><%= song.name %></option>
+      <% end %>
+    </select>
+  </span>
+
+  <span class='c-radio-criterion__value u-flex-1' data-criterion-value='genre' <%= "hidden" unless type == "genre" %>>
+    <input type='text' name='radio_station[criteria][][genre]' autocomplete='off' class='c-input c-input--full-width' list='radio-station-genres' value='<%= criterion&.genre %>' placeholder='<%= t("radio_station.select_genre") %>'>
+  </span>
+
+  <button type='button' class='c-button c-button--icon u-ml-tiny' data-action='radio-station-criteria#removeRow'>
+    <%= icon_tag "delete", size: "small", title: t("button.delete") %>
+  </button>
+</div>

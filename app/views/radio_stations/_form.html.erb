@@ -1,0 +1,54 @@
+<%# Collections for the source-criteria builder, scoped to the Libraries the current User is authorized to access (Req 1.4), so the builder only offers content the owner can actually broadcast. %>
+<% authorized_ids = Current.user.authorized_library_ids %>
+<% criteria_artists = Artist.where(library_id: authorized_ids).order(:name) %>
+<% criteria_songs = Song.where(library_id: authorized_ids).order(:name) %>
+<% criteria_genres = Album.where(library_id: authorized_ids).where.not(genre: [ nil, "" ]).distinct.order(:genre).pluck(:genre) %>
+<%# Seed the builder with the station's existing criteria, or a single blank artist row for a brand-new station so the builder is never empty. %>
+<% builder_criteria = radio_station.station_source_criteria.presence || [ StationSourceCriterion.new(criterion_type: "artist") ] %>
+<%= form_with model: radio_station, class: "c-form", id: "turbo-radio-station-form" do |form| %>
+  <div class='c-form__field'>
+    <%= form.label :name, t("field.name") %>
+    <%= form.text_field :name, class: "c-input" %>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :stream_visibility, t("radio_station.field.stream_visibility") %>
+    <%= form.select :stream_visibility, RadioStation.stream_visibilities.keys.map { |value| [ t("radio_station.stream_visibility.#{value}"), value ] }, {}, class: "c-input" %>
+    <small><%= t("radio_station.text.stream_visibility") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :listener_limit, t("radio_station.field.listener_limit") %>
+    <%= form.number_field :listener_limit, class: "c-input", min: 1 %>
+    <small><%= t("radio_station.text.listener_limit") %></small>
+  </div>
+
+  <div class='c-form__field' data-controller='radio-station-criteria'>
+    <%= form.label :criteria, t("radio_station.field.source_criteria") %>
+    <small><%= t("radio_station.text.source_criteria") %></small>
+
+    <datalist id='radio-station-genres'>
+      <% criteria_genres.each do |genre| %>
+        <option value='<%= genre %>'></option>
+      <% end %>
+    </datalist>
+
+    <div data-radio-station-criteria-target='rows'>
+      <% builder_criteria.each do |criterion| %>
+        <%= render partial: "radio_stations/criterion_fields", locals: { criterion: criterion, artists: criteria_artists, songs: criteria_songs } %>
+      <% end %>
+    </div>
+
+    <template data-radio-station-criteria-target='template'>
+      <%= render partial: "radio_stations/criterion_fields", locals: { criterion: nil, artists: criteria_artists, songs: criteria_songs } %>
+    </template>
+
+    <button type='button' class='c-button u-mt-tiny' data-action='radio-station-criteria#addRow'>
+      <%= t("radio_station.button.add_criterion") %>
+    </button>
+  </div>
+
+  <div class='c-form__field c-form__field--submit'>
+    <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+  </div>
+<% end %>

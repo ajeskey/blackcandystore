@@ -1,0 +1,37 @@
+<% page_title_tag t("party_session.guest.join_title") %>
+
+<%#
+  Guest join page opened from a Share_Link (Req 5.1, 9.2). A Guest is not a
+  `User` and authenticates with a non-cookie Bearer Guest_Token, so joining and
+  every later contribution run against the client-agnostic JSON API rather than
+  a cookie session. The `guest-session` Stimulus controller POSTs the join to
+  the JSON `guest_admit` endpoint, captures the once-only Guest_Token it returns
+  (only its keyed digest is persisted, Req 8.7), stores it for the session, and
+  forwards the Guest to the Shared_Playlist client.
+%>
+<div class='o-container o-container--narrow'
+     data-controller='guest-session'
+     data-guest-session-admit-url-value='<%= guest_admit_path(token: params[:token], format: :json) %>'
+     data-guest-session-playlist-url-template-value='<%= shared_playlist_shared_playlist_entries_path("SHARED_PLAYLIST_ID") %>'>
+  <h1 class='u-my-narrow'><%= t("party_session.guest.join_title") %></h1>
+
+  <% if @joinable %>
+    <p class='u-text-color-secondary'><%= t("party_session.guest.join_intro") %></p>
+
+    <%= form_with url: guest_admit_path(token: params[:token]), class: "c-form", data: { action: "guest-session#join" } do |form| %>
+      <div class='c-form__field'>
+        <%= form.label :display_name, t("party_session.guest.display_name") %>
+        <%= form.text_field :display_name, class: "c-input", autocomplete: "off", placeholder: t("party_session.guest.display_name_placeholder"), data: { "guest-session-target": "displayName" } %>
+        <small><%= t("party_session.guest.display_name_hint") %></small>
+      </div>
+
+      <div class='c-form__field c-form__field--submit'>
+        <%= form.submit t("party_session.guest.join_button"), class: "c-button c-button--primary c-button--full-width" %>
+      </div>
+    <% end %>
+
+    <p class='u-text-color-secondary u-display-none' data-guest-session-target='error'><%= t("party_session.guest.join_error") %></p>
+  <% else %>
+    <p class='u-text-color-secondary'><%= t("party_session.guest.unavailable") %></p>
+  <% end %>
+</div>

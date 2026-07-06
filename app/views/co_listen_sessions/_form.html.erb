@@ -1,0 +1,73 @@
+<%#
+  Co_Listen_Session configuration form (Req 7.1, 7.7). A Co_Listen_Session shares
+  the Party_Session configuration surface — Session_Duration, duplicate policy,
+  per-Guest add quota/rate, max guests, and the shared-library selection — and
+  adds a `listener_limit` capping concurrent Listeners on its Shared_Stream
+  (Req 11.6). The shared libraries are offered only from the libraries the Host
+  is authorized to access, so a session can never widen the Host's own access
+  (Req 4.7); the model re-validates this as a subset check.
+%>
+<% host_libraries = Library.where(id: Current.user.authorized_library_ids).order(:name) %>
+<%= form_with model: co_listen_session, class: "c-form", id: "turbo-co-listen-session-form" do |form| %>
+  <div class='c-form__field'>
+    <%= form.label :session_duration_kind, t("co_listen_session.field.session_duration_kind") %>
+    <%= form.select :session_duration_kind, CoListenSession.session_duration_kinds.keys.map { |value| [ t("co_listen_session.session_duration_kind.#{value}"), value ] }, {}, class: "c-input" %>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :session_duration_value, t("co_listen_session.field.session_duration_value") %>
+    <%= form.number_field :session_duration_value, class: "c-input", min: 1 %>
+    <small><%= t("co_listen_session.text.session_duration_value") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :duplicate_policy, t("co_listen_session.field.duplicate_policy") %>
+    <%= form.select :duplicate_policy, CoListenSession.duplicate_policies.keys.map { |value| [ t("co_listen_session.duplicate_policy.#{value}"), value ] }, {}, class: "c-input" %>
+    <small><%= t("co_listen_session.text.duplicate_policy") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :max_guests, t("co_listen_session.field.max_guests") %>
+    <%= form.number_field :max_guests, class: "c-input", min: 1 %>
+    <small><%= t("co_listen_session.text.max_guests") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :guest_add_quota, t("co_listen_session.field.guest_add_quota") %>
+    <%= form.number_field :guest_add_quota, class: "c-input", min: 0 %>
+    <small><%= t("co_listen_session.text.guest_add_quota") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :guest_add_rate_per_minute, t("co_listen_session.field.guest_add_rate_per_minute") %>
+    <%= form.number_field :guest_add_rate_per_minute, class: "c-input", min: 0 %>
+    <small><%= t("co_listen_session.text.guest_add_rate_per_minute") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :listener_limit, t("co_listen_session.field.listener_limit") %>
+    <%= form.number_field :listener_limit, class: "c-input", min: 1 %>
+    <small><%= t("co_listen_session.text.listener_limit") %></small>
+  </div>
+
+  <div class='c-form__field'>
+    <%= form.label :shared_library_ids, t("co_listen_session.field.shared_libraries") %>
+    <small><%= t("co_listen_session.text.shared_libraries") %></small>
+    <% if host_libraries.empty? %>
+      <p class='u-mt-tiny'><%= t("co_listen_session.text.no_libraries") %></p>
+    <% else %>
+      <div class='u-mt-tiny'>
+        <%= form.collection_check_boxes :shared_library_ids, host_libraries, :id, :name do |builder| %>
+          <label class='o-flex o-flex--align-center u-mb-tiny'>
+            <%= builder.check_box(class: "u-mr-tiny") %>
+            <%= builder.text %>
+          </label>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class='c-form__field c-form__field--submit'>
+    <%= form.submit t("button.save"), class: "c-button c-button--primary c-button--full-width" %>
+  </div>
+<% end %>

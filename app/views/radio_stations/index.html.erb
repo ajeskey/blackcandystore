@@ -1,0 +1,35 @@
+<% page_title_tag t("radio_station.label.radio_stations") %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("radio_station.label.radio_stations") %></h1>
+    <% end %>
+    <%= link_to t("radio_station.label.new_radio_station"), new_radio_station_path, class: "c-button c-button--primary" %>
+  </div>
+
+  <% if @radio_stations.empty? %>
+    <div class='u-mt-wide'>
+      <%= empty_alert_tag has_icon: true, has_overlay: false %>
+    </div>
+  <% else %>
+    <ul class='c-list c-list--grouped'>
+      <% @radio_stations.each do |radio_station| %>
+        <li class='c-list__item o-flex o-flex--align-center o-flex--justify-between'>
+          <%= link_to radio_station_path(radio_station), class: "o-flex o-flex--align-center u-text-size-large" do %>
+            <%= icon_tag "music-note", class: "u-mr-tiny" %>
+            <%= radio_station.name %>
+          <% end %>
+          <span class='o-flex o-flex--align-center'>
+            <span class='c-badge u-mr-tiny'><%= t("radio_station.state.#{radio_station.state}") %></span>
+            <% if radio_station.started? %>
+              <%= button_to t("radio_station.button.stop"), stop_radio_station_path(radio_station), class: "c-button" %>
+            <% else %>
+              <%= button_to t("radio_station.button.start"), start_radio_station_path(radio_station), class: "c-button c-button--primary" %>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

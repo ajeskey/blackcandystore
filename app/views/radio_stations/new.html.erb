@@ -1,0 +1,7 @@
+<% page_title_tag t("radio_station.label.new_radio_station") %>
+
+<div class='o-container o-container--narrow'>
+  <h2 class='u-mb-0'><%= t("radio_station.label.new_radio_station") %></h2>
+  <hr>
+  <%= render partial: "radio_stations/form", locals: { radio_station: @radio_station } %>
+</div>

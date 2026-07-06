@@ -1,0 +1,31 @@
+<% page_title_tag t("party_session.label.party_sessions") %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("party_session.label.party_sessions") %></h1>
+    <% end %>
+    <%= link_to t("party_session.label.new_party_session"), new_party_session_path, class: "c-button c-button--primary" %>
+  </div>
+
+  <% if @party_sessions.empty? %>
+    <div class='u-mt-wide'>
+      <%= empty_alert_tag has_icon: true, has_overlay: false %>
+    </div>
+  <% else %>
+    <ul class='c-list c-list--grouped'>
+      <% @party_sessions.each do |party_session| %>
+        <li class='c-list__item o-flex o-flex--align-center o-flex--justify-between'>
+          <%= link_to party_session_path(party_session), class: "o-flex o-flex--align-center u-text-size-large" do %>
+            <%= icon_tag "volume-up", class: "u-mr-tiny" %>
+            <%= t("party_session.label.party_session_number", id: party_session.id) %>
+          <% end %>
+          <span class='o-flex o-flex--align-center'>
+            <span class='c-badge u-mr-tiny'><%= t("party_session.state.#{party_session.state}") %></span>
+            <span class='u-text-color-secondary'><%= t("party_session.duration.#{party_session.session_duration_kind}", count: party_session.session_duration_value) %></span>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

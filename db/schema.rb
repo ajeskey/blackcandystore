@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_000013) do
   create_table "access_grants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at"
@@ -107,6 +107,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
     t.index ["library_id"], name: "index_catalog_changes_on_library_id"
   end
 
+  create_table "co_listen_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "duplicate_policy", default: "reject", null: false
+    t.integer "guest_add_quota"
+    t.integer "guest_add_rate_per_minute"
+    t.integer "listener_limit"
+    t.integer "max_guests"
+    t.string "session_duration_kind", default: "perpetual", null: false
+    t.integer "session_duration_value"
+    t.json "shared_library_ids", default: [], null: false
+    t.string "state", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_co_listen_sessions_on_user_id"
+  end
+
   create_table "content_fingerprints", force: :cascade do |t|
     t.string "acoustic_fingerprint"
     t.datetime "created_at", null: false
@@ -124,6 +140,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
     t.string "logical_track_key"
     t.datetime "updated_at", null: false
     t.index ["logical_track_key"], name: "index_duplicate_groups_on_logical_track_key"
+  end
+
+  create_table "guests", force: :cascade do |t|
+    t.integer "add_count", default: 0, null: false
+    t.datetime "admitted_at"
+    t.datetime "created_at", null: false
+    t.string "display_name"
+    t.string "guest_token_digest", null: false
+    t.datetime "rate_window_started_at"
+    t.datetime "removed_at"
+    t.integer "sessionable_id", null: false
+    t.string "sessionable_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["guest_token_digest"], name: "index_guests_on_guest_token_digest", unique: true
+    t.index ["sessionable_type", "sessionable_id"], name: "index_guests_on_sessionable"
   end
 
   create_table "libraries", force: :cascade do |t|
@@ -170,6 +201,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
     t.index ["identifier"], name: "index_output_devices_on_identifier", unique: true
   end
 
+  create_table "party_output_devices", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "output_device_id", null: false
+    t.integer "party_session_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["output_device_id"], name: "index_party_output_devices_on_output_device_id"
+    t.index ["party_session_id", "output_device_id"], name: "index_party_output_devices_on_session_and_device", unique: true
+    t.index ["party_session_id"], name: "index_party_output_devices_on_party_session_id"
+  end
+
+  create_table "party_sessions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "duplicate_policy", default: "reject", null: false
+    t.integer "guest_add_quota"
+    t.integer "guest_add_rate_per_minute"
+    t.integer "max_guests"
+    t.string "session_duration_kind", default: "perpetual", null: false
+    t.integer "session_duration_value"
+    t.json "shared_library_ids", default: [], null: false
+    t.string "state", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_party_sessions_on_user_id"
+  end
+
   create_table "playback_sessions", force: :cascade do |t|
     t.text "active_output_device_ids"
     t.datetime "created_at", null: false
@@ -198,6 +254,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
     t.index ["song_id", "playlist_id"], name: "index_playlists_songs_on_song_id_and_playlist_id", unique: true
   end
 
+  create_table "radio_stations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "listener_limit"
+    t.string "name", null: false
+    t.string "state", default: "stopped", null: false
+    t.string "stream_visibility", default: "authenticated", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id"], name: "index_radio_stations_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "ip_address"
@@ -211,6 +278,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
     t.integer "singleton_guard"
     t.text "values"
     t.index ["singleton_guard"], name: "index_settings_on_singleton_guard", unique: true
+  end
+
+  create_table "share_links", force: :cascade do |t|
+    t.integer "access_grant_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "sessionable_id", null: false
+    t.string "sessionable_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["access_grant_id"], name: "index_share_links_on_access_grant_id"
+    t.index ["sessionable_type", "sessionable_id"], name: "index_share_links_on_sessionable"
+  end
+
+  create_table "shared_playlist_entries", force: :cascade do |t|
+    t.integer "added_by_guest_id"
+    t.integer "added_by_user_id"
+    t.datetime "created_at", null: false
+    t.string "guest_display_name"
+    t.integer "position", default: 0, null: false
+    t.integer "shared_playlist_id", null: false
+    t.integer "song_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["added_by_guest_id"], name: "index_shared_playlist_entries_on_added_by_guest_id"
+    t.index ["added_by_user_id"], name: "index_shared_playlist_entries_on_added_by_user_id"
+    t.index ["shared_playlist_id", "position"], name: "idx_on_shared_playlist_id_position_9f76fc4864"
+    t.index ["shared_playlist_id"], name: "index_shared_playlist_entries_on_shared_playlist_id"
+  end
+
+  create_table "shared_playlists", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "sessionable_id", null: false
+    t.string "sessionable_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["sessionable_type", "sessionable_id"], name: "index_shared_playlists_on_sessionable"
+    t.index ["sessionable_type", "sessionable_id"], name: "index_shared_playlists_on_sessionable_unique", unique: true
   end
 
   create_table "songs", force: :cascade do |t|
@@ -239,6 +340,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
     t.index ["name"], name: "index_songs_on_name"
   end
 
+  create_table "station_source_criteria", force: :cascade do |t|
+    t.integer "artist_id"
+    t.datetime "created_at", null: false
+    t.string "criterion_type", null: false
+    t.string "genre"
+    t.integer "radio_station_id", null: false
+    t.integer "song_id"
+    t.datetime "updated_at", null: false
+    t.index ["artist_id"], name: "index_station_source_criteria_on_artist_id"
+    t.index ["radio_station_id", "criterion_type"], name: "idx_on_radio_station_id_criterion_type_aea7875778"
+    t.index ["radio_station_id"], name: "index_station_source_criteria_on_radio_station_id"
+    t.index ["song_id"], name: "index_station_source_criteria_on_song_id"
+  end
+
+  create_table "stream_tokens", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "radio_station_id", null: false
+    t.string "status", default: "active", null: false
+    t.string "token_digest", null: false
+    t.datetime "updated_at", null: false
+    t.index ["radio_station_id"], name: "index_stream_tokens_on_radio_station_id", unique: true
+    t.index ["token_digest"], name: "index_stream_tokens_on_token_digest", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.integer "active_library_id"
     t.datetime "created_at", null: false
@@ -261,11 +386,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000001) do
   add_foreign_key "artists", "libraries"
   add_foreign_key "cast_sessions", "users"
   add_foreign_key "catalog_changes", "libraries"
+  add_foreign_key "co_listen_sessions", "users"
   add_foreign_key "content_fingerprints", "songs"
   add_foreign_key "libraries", "users", column: "owner_id"
   add_foreign_key "library_connections", "users"
+  add_foreign_key "party_output_devices", "output_devices"
+  add_foreign_key "party_output_devices", "party_sessions"
+  add_foreign_key "party_sessions", "users"
   add_foreign_key "playback_sessions", "users"
+  add_foreign_key "radio_stations", "users"
+  add_foreign_key "share_links", "access_grants"
+  add_foreign_key "shared_playlist_entries", "shared_playlists"
+  add_foreign_key "shared_playlist_entries", "users", column: "added_by_user_id"
   add_foreign_key "songs", "duplicate_groups"
   add_foreign_key "songs", "libraries"
+  add_foreign_key "station_source_criteria", "artists"
+  add_foreign_key "station_source_criteria", "radio_stations"
+  add_foreign_key "station_source_criteria", "songs"
+  add_foreign_key "stream_tokens", "radio_stations"
   add_foreign_key "users", "libraries", column: "active_library_id", on_delete: :nullify
 end

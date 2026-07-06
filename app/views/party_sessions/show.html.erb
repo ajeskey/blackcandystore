@@ -1,0 +1,127 @@
+<% page_title_tag t("party_session.label.party_session_number", id: @party_session.id) %>
+
+<%# Output_Devices the Host may play the Party_Session to. The device picker is
+    the discovery-maintained cache (Req 6.1); selecting one is HOST-ONLY and is
+    posted to the host-only `select_output_devices` action (Req 6.2). %>
+<% output_devices = OutputDevice.all %>
+<% shared_libraries = Library.where(id: @party_session.shared_library_ids) %>
+
+<div class='o-container o-container--narrow'>
+  <div class='o-flex o-flex--justify-between o-flex--align-center u-my-narrow'>
+    <% unless native_app? %>
+      <h1 class='u-mb-0'><%= t("party_session.label.party_session_number", id: @party_session.id) %></h1>
+    <% end %>
+    <span class='o-flex o-flex--align-center'>
+      <%= link_to t("button.edit"), edit_party_session_path(@party_session), class: "c-button u-mr-tiny" %>
+      <%= button_to party_session_path(@party_session), method: :delete, class: "c-button c-button--icon", form: { data: { turbo_confirm: t("party_session.text.confirm_delete") } } do %>
+        <%= icon_tag "delete", size: "small", title: t("button.delete") %>
+      <% end %>
+    </span>
+  </div>
+
+  <%# Configuration summary (Req 4.1, 4.3, 4.7, 5.9, 5.10, 5.11). %>
+  <ul class='c-list c-list--grouped u-mb-medium'>
+    <li class='c-list__item o-flex o-flex--justify-between o-flex--align-center'>
+      <span><%= t("party_session.field.state") %></span>
+      <span class='c-badge'><%= t("party_session.state.#{@party_session.state}") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("party_session.field.session_duration") %></span>
+      <span><%= t("party_session.duration.#{@party_session.session_duration_kind}", count: @party_session.session_duration_value) %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("party_session.field.duplicate_policy") %></span>
+      <span><%= t("party_session.duplicate_policy.#{@party_session.duplicate_policy}") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("party_session.field.max_guests") %></span>
+      <span><%= @party_session.max_guests || t("party_session.text.no_limit") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("party_session.field.guest_add_quota") %></span>
+      <span><%= @party_session.guest_add_quota || t("party_session.text.no_limit") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("party_session.field.guest_add_rate_per_minute") %></span>
+      <span><%= @party_session.guest_add_rate_per_minute || t("party_session.text.no_limit") %></span>
+    </li>
+    <li class='c-list__item o-flex o-flex--justify-between'>
+      <span><%= t("party_session.field.shared_libraries") %></span>
+      <span><%= shared_libraries.map(&:name).join(", ").presence || t("party_session.text.no_shared_libraries") %></span>
+    </li>
+  </ul>
+
+  <%# Share_Links (Req 4.2, 4.6). Generating mints one AccessGrant-backed link
+      per shared library; the plaintext join token is returned once through the
+      JSON API and is never persisted, so only link status/expiry is shown here. %>
+  <div class='c-form__field'>
+    <label><%= t("party_session.field.share_links") %></label>
+    <div class='o-flex o-flex--align-center u-mb-tiny'>
+      <%= button_to t("party_session.button.generate_share_link"), generate_share_link_party_session_path(@party_session), class: "c-button c-button--primary u-mr-tiny" %>
+      <% if @party_session.share_links.any? %>
+        <%= button_to t("party_session.button.revoke_share_links"), revoke_party_session_path(@party_session), class: "c-button", form: { data: { turbo_confirm: t("party_session.text.confirm_revoke") } } %>
+      <% end %>
+    </div>
+    <small><%= t("party_session.text.share_links") %></small>
+
+    <% if @party_session.share_links.any? %>
+      <ul class='c-list c-list--grouped u-mt-tiny'>
+        <% @party_session.share_links.each do |share_link| %>
+          <li class='c-list__item o-flex o-flex--justify-between o-flex--align-center'>
+            <span><%= share_link.access_grant&.library&.name %></span>
+            <span class='o-flex o-flex--align-center'>
+              <span class='c-badge u-mr-tiny'><%= t("party_session.share_link_status.#{share_link.usable? ? "usable" : "unusable"}") %></span>
+              <% if share_link.access_grant&.expires_at %>
+                <span class='u-text-color-secondary'><%= l(share_link.access_grant.expires_at, format: :short) %></span>
+              <% else %>
+                <span class='u-text-color-secondary'><%= t("party_session.duration.perpetual") %></span>
+              <% end %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <%# Output_Device selection — HOST-ONLY (Req 6.1, 6.2). %>
+  <div class='c-form__field'>
+    <label><%= t("party_session.field.output_devices") %></label>
+    <small><%= t("party_session.text.output_devices") %></small>
+    <% if output_devices.empty? %>
+      <p class='u-text-color-secondary u-mt-tiny'><%= t("party_session.text.no_output_devices") %></p>
+    <% else %>
+      <ul class='c-list c-list--grouped u-mt-tiny'>
+        <% output_devices.each do |device| %>
+          <li class='c-list__item o-flex o-flex--align-center o-flex--justify-between'>
+            <span class='o-flex o-flex--align-center'>
+              <%= icon_tag "volume-up", class: "u-mr-tiny" %>
+              <%= device.name.presence || t("label.unnamed_device") %>
+              <span class='c-badge u-ml-tiny'><%= device.protocol %></span>
+            </span>
+            <%= button_to t("party_session.button.select_device"), select_output_devices_party_session_path(@party_session), params: { output_device_id: device.id }, class: "c-button" %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
+
+  <%# Transport control — HOST-ONLY stop/pause/skip (Req 6.8). %>
+  <div class='c-form__field'>
+    <label><%= t("party_session.field.transport") %></label>
+    <div class='o-flex o-flex--align-center'>
+      <%= button_to t("party_session.button.pause"), pause_party_session_path(@party_session), class: "c-button u-mr-tiny" %>
+      <%= button_to t("party_session.button.skip"), skip_party_session_path(@party_session), class: "c-button u-mr-tiny" %>
+      <%= button_to t("party_session.button.stop"), stop_party_session_path(@party_session), class: "c-button" %>
+    </div>
+  </div>
+
+  <%# Shared_Playlist management — the Host may reorder/remove any entry (Req 6.6). %>
+  <div class='c-form__field'>
+    <label><%= t("party_session.field.shared_playlist") %></label>
+    <% if @party_session.shared_playlist %>
+      <%= link_to t("party_session.button.manage_playlist"), shared_playlist_shared_playlist_entries_path(@party_session.shared_playlist), class: "c-button" %>
+    <% else %>
+      <p class='u-text-color-secondary u-mt-tiny'><%= t("party_session.text.no_shared_playlist") %></p>
+    <% end %>
+  </div>
+</div>

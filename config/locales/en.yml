@@ -156,6 +156,54 @@ en:
     deleted_from_playlist: 'Deleted from playlist successfully'
     sync_completed: "Media sync completed"
 
+  radio_station:
+    label:
+      radio_stations: 'Radio Stations'
+      new_radio_station: 'New Radio Station'
+      edit_radio_station: 'Edit Radio Station'
+    field:
+      state: 'State'
+      stream_visibility: 'Stream Visibility'
+      listener_limit: 'Listener Limit'
+      source_criteria: 'Source Criteria'
+      stream_endpoint_url: 'Stream Endpoint URL'
+      stream_token: 'Stream Token'
+    button:
+      start: 'Start'
+      stop: 'Stop'
+      add_criterion: 'Add Criterion'
+      tune_in: 'Tune In'
+      rotate_stream_token: 'Rotate Token'
+      revoke_stream_token: 'Revoke Token'
+    state:
+      stopped: 'Stopped'
+      started: 'Broadcasting'
+    stream_visibility:
+      authenticated: 'Authenticated'
+      public: 'Public'
+    criterion_type:
+      artist: 'Artist'
+      song: 'Song'
+      genre: 'Genre'
+    player:
+      title: 'Web Player'
+      playing: 'Playing'
+      stopped: 'Stopped'
+      loading: 'Connecting...'
+      error: 'Stream unavailable'
+    select_artist: 'Select an artist'
+    select_song: 'Select a song'
+    select_genre: 'Enter a genre'
+    text:
+      stream_visibility: "A public stream is served without credentials. An authenticated stream requires a stream token embedded in its URL or an authorized account."
+      listener_limit: "Maximum number of concurrent listeners. Leave blank for no limit."
+      source_criteria: "Build the station's program from any combination of artists, songs, and genres. The criteria must select at least one song you can access."
+      no_listener_limit: 'No limit'
+      stream_endpoint_url: "Tune in from the web player or any generic MP3 client. Audio is delivered only while the station is broadcasting."
+      stream_token: "Rotate to mint a fresh token for authenticated stream URLs, or revoke to block token access. The plaintext token is shown only once when rotated."
+      confirm_delete: "Delete this radio station? Its stream will be stopped and its configuration removed."
+      confirm_revoke_stream_token: "Revoke this stream token? URLs using it will stop working."
+
   source_preference:
     prefer_own_server: 'Prefer my own server'
     prefer_highest_quality: 'Prefer highest quality'
@@ -205,3 +253,150 @@ en:
         not_verifiable: 'could not be verified'
         invalid_content_type: "has an invalid content type"
         not_supported_with_sqlite: "is not supported with SQLite"
+
+  co_listen_session:
+    label:
+      co_listen_sessions: 'Co-listen Sessions'
+      new_co_listen_session: 'New Co-listen Session'
+      edit_co_listen_session: 'Edit Co-listen Session'
+      session_number: 'Session #%{id}'
+      shared_playlist: 'Shared Playlist'
+    field:
+      state: 'State'
+      session_duration: 'Session Duration'
+      session_duration_kind: 'Duration'
+      session_duration_value: 'Duration Length'
+      duplicate_policy: 'Duplicate Policy'
+      max_guests: 'Maximum Guests'
+      guest_add_quota: 'Per-guest Add Quota'
+      guest_add_rate_per_minute: 'Per-guest Add Rate (per minute)'
+      listener_limit: 'Listener Limit'
+      shared_libraries: 'Shared Libraries'
+      stream_endpoint_url: 'Stream Endpoint URL'
+      share_links: 'Share Links'
+      shared_playlist: 'Shared Playlist'
+      add_song: 'Add a Song'
+    button:
+      activate: 'Activate'
+      deactivate: 'Deactivate'
+      tune_in: 'Tune In'
+      generate_share_link: 'Generate Share Links'
+      manage_playlist: 'Manage Playlist'
+      add_song: 'Add'
+    state:
+      active: 'Active'
+      ended: 'Ended'
+    session_duration_kind:
+      hours: 'Hours'
+      days: 'Days'
+      perpetual: 'Perpetual'
+    duplicate_policy:
+      reject: 'Reject duplicates'
+      allow: 'Allow duplicates'
+    share_link_state:
+      usable: 'Active'
+      inactive: 'Inactive'
+    player:
+      title: 'Listen'
+      playing: 'Playing'
+      stopped: 'Stopped'
+      loading: 'Connecting...'
+      error: 'Stream unavailable'
+    text:
+      session_duration_value: "The number of hours or days the session stays open. Leave blank for a perpetual session."
+      duplicate_policy: "Whether a song already in the shared playlist may be added again."
+      max_guests: "Maximum number of concurrent guests. Leave blank for no limit."
+      guest_add_quota: "Total songs a single guest may add. Leave blank for no limit."
+      guest_add_rate_per_minute: "How many songs a single guest may add per minute. Leave blank for no limit."
+      listener_limit: "Maximum number of concurrent listeners on the shared stream. Leave blank for no limit."
+      shared_libraries: "Select which libraries this session shares. Guests can only browse and add songs from these libraries."
+      no_libraries: "You are not authorized to access any libraries yet."
+      no_listener_limit: 'No limit'
+      unbounded: 'No limit'
+      stream_endpoint_url: "Participants tune in from the web player or any generic MP3 client. Audio is delivered only while the session is active."
+      share_links: "Generate one share link per shared library. The join token is shown only once through the API response; only its digest is stored."
+      confirm_delete: "Delete this co-listen session? Its stream will be stopped and its configuration removed."
+      select_song: 'Select a song'
+      unknown_song: 'Unknown song'
+      confirm_remove_entry: "Remove this song from the shared playlist?"
+
+  party_session:
+    label:
+      party_sessions: 'Party Sessions'
+      new_party_session: 'New Party Session'
+      edit_party_session: 'Edit Party Session'
+      party_session_number: 'Party #%{id}'
+    field:
+      state: 'State'
+      session_duration: 'Session Duration'
+      session_duration_value: 'Duration Length'
+      duplicate_policy: 'Duplicate Policy'
+      max_guests: 'Maximum Guests'
+      guest_add_quota: 'Per-guest Add Quota'
+      guest_add_rate_per_minute: 'Per-guest Add Rate (per minute)'
+      shared_libraries: 'Shared Libraries'
+      share_links: 'Share Links'
+      output_devices: 'Output Devices'
+      transport: 'Playback Control'
+      shared_playlist: 'Shared Playlist'
+    button:
+      generate_share_link: 'Generate Share Links'
+      revoke_share_links: 'Revoke Links'
+      select_device: 'Play Here'
+      pause: 'Pause'
+      skip: 'Skip'
+      stop: 'Stop'
+      manage_playlist: 'Manage Playlist'
+    state:
+      active: 'Active'
+      ended: 'Ended'
+    duration:
+      hours: '%{count} hours'
+      days: '%{count} days'
+      perpetual: 'Perpetual'
+    duration_kind:
+      hours: 'Hours'
+      days: 'Days'
+      perpetual: 'Perpetual'
+    duplicate_policy:
+      reject: 'Reject duplicates'
+      allow: 'Allow duplicates'
+    share_link_status:
+      usable: 'Active'
+      unusable: 'Inactive'
+    text:
+      session_duration: "How long the session stays open before it expires."
+      session_duration_value: "The number of hours or days the session stays open. Leave blank for a perpetual session."
+      duplicate_policy: "Whether a song already in the shared playlist may be added again."
+      max_guests: "Maximum number of concurrent guests. Leave blank for no limit."
+      guest_add_quota: "Total songs a single guest may add. Leave blank for no limit."
+      guest_add_rate_per_minute: "How many songs a single guest may add per minute. Leave blank for no limit."
+      shared_libraries: "Select which libraries this session shares. Guests can only browse and add songs from these libraries."
+      no_authorized_libraries: "You are not authorized to access any libraries yet."
+      share_links: "Generate one share link per shared library. The join token is shown only once through the API response; only its digest is stored."
+      output_devices: "Choose the speakers the party plays to. Only you, the host, can select devices."
+      no_output_devices: "No playback devices were found on the network."
+      shared_playlist: 'Shared Playlist'
+      no_shared_playlist: "The shared playlist appears once the session has one."
+      no_shared_libraries: 'None'
+      no_limit: 'No limit'
+      confirm_delete: "Delete this party session? Its playback will be stopped and its configuration removed."
+      confirm_revoke: "Revoke this session's share links? No further guests will be able to join."
+    guest:
+      join_title: 'Join the party'
+      join_intro: "Add your name and join to start adding songs to the shared playlist."
+      display_name: 'Display name'
+      display_name_placeholder: 'Your name'
+      display_name_hint: "Optional. Shown next to the songs you add."
+      join_button: 'Join'
+      join_error: "Sorry, this party could not be joined. The link may have expired or the party is full."
+      unavailable: "This share link is no longer accepting new guests."
+    playlist:
+      title: 'Shared Playlist'
+      add_song: 'Add a Song'
+      select_song: 'Select a song'
+      add_button: 'Add'
+      empty: "No songs yet. Add the first one above."
+      added_by: 'Added by %{name}'
+      move_up: 'Move up'
+      move_down: 'Move down'

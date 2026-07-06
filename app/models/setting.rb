@@ -25,6 +25,11 @@ class Setting < ApplicationRecord
   # env config when unset, so existing env-based deployments keep working.
   has_setting :server_base_url, default: proc { BlackCandy.config.server_base_url }
 
+  # Admin/global cap on the number of Radio_Station and Co_Listen_Session
+  # broadcasts that may run concurrently. Enforced in Rails at start/activate
+  # against the count of currently live broadcasts (Req 10.5, 10.6).
+  has_setting :max_concurrent_streams, type: :integer
+
   validates :transcode_bitrate, inclusion: { in: AVAILABLE_BITRATE_OPTIONS }, allow_nil: true
   validate :media_path_exist
   validate :parallel_media_sync_database

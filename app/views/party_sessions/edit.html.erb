@@ -1,0 +1,7 @@
+<% page_title_tag t("party_session.label.edit_party_session") %>
+
+<div class='o-container o-container--narrow'>
+  <h2 class='u-mb-0'><%= t("party_session.label.edit_party_session") %></h2>
+  <hr>
+  <%= render partial: "party_sessions/form", locals: { party_session: @party_session } %>
+</div>
