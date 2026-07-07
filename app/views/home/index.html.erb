@@ -4,6 +4,8 @@
   <%= render partial: "shared/account_menu", locals: { current_user: Current.user } %>
 <% end %>
 
+<%= render partial: "shared/continue_listening", locals: { continue_listening: @continue_listening } %>
+
 <% if [@recently_added_albums, @recently_played_albums].any?(&:present?) %>
   <% if @recently_played_albums.present? %>
     <h1><%= t("label.recently_played") %></h1>

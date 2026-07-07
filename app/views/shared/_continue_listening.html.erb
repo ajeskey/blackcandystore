@@ -1,0 +1,55 @@
+<%# Continue_Listening surface for the Home page (Req 10.1). Renders each %>
+<%# in-progress Resumable_Track so the User can resume it in one click. When %>
+<%# the User has no in-progress Resumable_Track, the surface still renders its %>
+<%# heading and shows an empty-state message via empty_alert_tag (Req 4.7, 10.4). %>
+<h1><%= t("label.continue_listening") %></h1>
+<% if continue_listening.empty? %>
+  <div class='u-mt-wide u-mb-large'>
+    <%= empty_alert_tag has_icon: true, has_overlay: false, message: t("label.no_continue_listening") %>
+  </div>
+<% else %>
+<div class='o-grid o-grid--shelf u-mb-large'>
+  <% continue_listening.each do |position| %>
+    <% song = position.song %>
+    <% album = song.album %>
+    <div class='o-grid__item c-card u-mb-medium' data-song-id='<%= song.id %>'>
+      <%# Selecting an item enqueues the Song through the normal open path so %>
+      <%# the player resumes from the stored position via PositionSync auto-seek (Req 4.5). %>
+      <%= button_to(
+            current_playlist_songs_path(song_id: song.id, should_play: true),
+            class: "c-card__image",
+            form_class: "c-card__image",
+            form: {
+              data: {
+                "delegated-action" => "turbo:submit-start->songs#checkBeforePlay click->bridge--songs#playNow",
+                "turbo-frame" => "turbo-playlist",
+                "disabled-on-native" => "true"
+              }
+            }
+          ) do %>
+        <%= cover_image_tag album, class: "u-image-fluid" %>
+      <% end %>
+      <div class='c-card__body'>
+        <%# Song name, Album name, and identifying detail (Req 10.2). %>
+        <span class='c-card__body__text u-text-weight-bold u-text-line-clamp-2'><%= song.name %></span>
+        <%= link_to album.name, album_path(album), class: "c-card__body__text u-text-line-clamp-2" %>
+        <span class='c-card__body__text u-text-line-clamp-2'><%= song.artist.name %></span>
+
+        <%# Mirror the albums/show audiobook enrichment display for audiobook %>
+        <%# items with stored enrichment (Req 10.3). %>
+        <% if album.audiobook? && album.enriched? %>
+          <div class='c-card__body__text u-mt-narrow'>
+            <span class='c-badge u-mr-tiny'><%= t("label.audiobook") %></span>
+            <% if album.enrichment["authors"].present? %>
+              <span><%= t("label.author") %>: <%= Array(album.enrichment["authors"]).join(", ") %></span>
+            <% end %>
+            <% if album.enrichment["first_publish_year"].present? %>
+              <span>(<%= album.enrichment["first_publish_year"] %>)</span>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+<% end %>

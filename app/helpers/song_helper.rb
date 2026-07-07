@@ -13,6 +13,13 @@ module SongHelper
     # path alongside it (Req 8.10).
     resolved_stream = PathResolver.new.resolve_stream(song, user: Current.user, transcode: transcode)
 
+    # Carry resume data on the Song itself so the Web_Player / App_Player have
+    # what they need on open without an extra round-trip (Req 3.1, 6.2, 8.2).
+    # `resume_position` is the authoritative Playback_Position_Record for the
+    # current User scoped through `Current.user.playback_positions`, or null when
+    # none exists.
+    resume_position = Current.user&.playback_positions&.find_by(song_id: song.id)
+
     Jbuilder.new do |json|
       json.call(song, :id, :name, :duration, :album_id, :artist_id)
       json.url transcode ? transcoded_stream_url : stream_url
@@ -23,6 +30,16 @@ module SongHelper
       json.artist_name song.artist.name
       json.is_favorited song.is_favorited.nil? ? Current.user.favorited?(song) : song.is_favorited
       json.format transcode ? Stream::TRANSCODE_FORMAT : song.format
+      json.resumable song.resumable?
+      if resume_position
+        json.resume_position do
+          json.position_seconds resume_position.position_seconds
+          json.finished resume_position.finished
+          json.updated_at resume_position.updated_at
+        end
+      else
+        json.resume_position nil
+      end
       json.album_image_urls do
         json.small URI.join(root_url, cover_image_url_for(song.album, size: :small))
         json.medium URI.join(root_url, cover_image_url_for(song.album, size: :medium))

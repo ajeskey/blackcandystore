@@ -1,4 +1,11 @@
 <div class='c-player u-h-100' data-controller='player media-session'>
+  <%# Surface the fixed PlaybackPosition constants to the Web_Player so JS and %>
+  <%# Ruby never drift (mirrored by PositionSync in player.js). %>
+  <div class='u-display-none' data-playback-constants
+       data-long-track-threshold='<%= PlaybackPosition::LONG_TRACK_THRESHOLD %>'
+       data-minimum-resume-position='<%= PlaybackPosition::MINIMUM_RESUME_POSITION %>'
+       data-finished-threshold='<%= PlaybackPosition::FINISHED_THRESHOLD %>'
+       data-save-interval='<%= PlaybackPosition::SAVE_INTERVAL %>'></div>
   <div data-player-target='header' class='c-player__header u-position-relative'>
     <div class='u-position-relative u-overflow-hidden'>
       <div class='c-player__header__background' data-player-target='backgroundImage'></div>
@@ -25,6 +32,9 @@
   </div>
   <div class='c-player__control'>
     <div class="c-player__control__main o-flex o-flex--justify-between">
+      <button class='c-button c-button--icon' data-action='click->player#startFromBeginning'>
+        <%= icon_tag "replay", size: "large", title: t("label.start_from_beginning") %>
+      </button>
       <button class='c-button c-button--icon' data-action='click->player#previous'>
         <%= icon_tag "rewind", size: "large", title: t("label.previous_song") %>
       </button>
