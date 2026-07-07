@@ -6,5 +6,14 @@
     <li class='c-tab__item <%= "is-active" if current_controller == "libraries" %>'>
       <%= link_to t("label.library"), library_overview_path %>
     </li>
+    <li class='c-tab__item <%= "is-active" if NavTabs.active?(:radio_stations, current_controller) %>'>
+      <%= link_to t("label.radio_stations"), radio_stations_path %>
+    </li>
+    <li class='c-tab__item <%= "is-active" if NavTabs.active?(:party_sessions, current_controller) %>'>
+      <%= link_to t("label.party_sessions"), party_sessions_path %>
+    </li>
+    <li class='c-tab__item <%= "is-active" if NavTabs.active?(:co_listen_sessions, current_controller) %>'>
+      <%= link_to t("label.co_listen_sessions"), co_listen_sessions_path %>
+    </li>
   </ul>
 </nav>

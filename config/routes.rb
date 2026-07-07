@@ -132,7 +132,18 @@ Rails.application.routes.draw do
   resources :access_grants, only: [ :destroy ]
 
   resources :artists, only: [ :index, :show, :update ]
-  resources :songs, only: [ :index, :show ]
+  resources :songs, only: [ :index, :show ] do
+    # The current User's Playback_Position for this Song, read/written by the
+    # Web_Player and App_Player (Req 6.2, 6.5, 8.1). A singular nested resource
+    # because the record always belongs to Current.user, so there is exactly one
+    # per (User, Song) pair and no id is needed.
+    resource :playback_position, only: [ :show, :update ], module: :songs
+  end
+  # The current User's Continue_Listening_List, exposed as a client-agnostic
+  # representation for App_Players (Req 8.1, 8.2). A singular resource because
+  # the list always belongs to Current.user; the Home page renders the same list
+  # server-side. An empty result is a valid empty list (Req 4.7).
+  resource :continue_listening, only: [ :show ], controller: :continue_listening
   resources :albums, only: [ :index, :show, :update ]
 
   resources :users, except: [ :show ] do

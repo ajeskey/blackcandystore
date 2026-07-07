@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_05_000013) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_05_000020) do
   create_table "access_grants", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at"
@@ -226,6 +226,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000013) do
     t.index ["user_id"], name: "index_party_sessions_on_user_id"
   end
 
+  create_table "playback_positions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "finished", default: false, null: false
+    t.float "position_seconds", default: 0.0, null: false
+    t.integer "song_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["user_id", "song_id"], name: "index_playback_positions_on_user_id_and_song_id", unique: true
+    t.index ["user_id", "updated_at"], name: "index_playback_positions_on_user_id_and_updated_at"
+  end
+
   create_table "playback_sessions", force: :cascade do |t|
     t.text "active_output_device_ids"
     t.datetime "created_at", null: false
@@ -393,6 +404,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_05_000013) do
   add_foreign_key "party_output_devices", "output_devices"
   add_foreign_key "party_output_devices", "party_sessions"
   add_foreign_key "party_sessions", "users"
+  add_foreign_key "playback_positions", "songs"
+  add_foreign_key "playback_positions", "users"
   add_foreign_key "playback_sessions", "users"
   add_foreign_key "radio_stations", "users"
   add_foreign_key "share_links", "access_grants"

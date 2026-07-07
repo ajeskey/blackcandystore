@@ -47,6 +47,10 @@ class User < ApplicationRecord
   has_many :playlists, -> { where(type: nil) }, inverse_of: :user, dependent: :destroy
   has_many :sessions, dependent: :destroy
 
+  # This user's per-Song elapsed playback positions. Owned exclusively by the
+  # user, so deleting the user removes their positions (Req 7.1, 7.5).
+  has_many :playback_positions, dependent: :destroy
+
   # Libraries this user owns (server owner). Used to compute the set of
   # accessible libraries and the default Active_Library selection.
   has_many :owned_libraries, class_name: "Library", foreign_key: :owner_id, inverse_of: :owner, dependent: :nullify

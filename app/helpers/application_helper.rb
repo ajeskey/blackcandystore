@@ -63,8 +63,8 @@ module ApplicationHelper
     tag.div class: "o-animation-spin c-loader #{size_class}"
   end
 
-  def empty_alert_tag(has_icon: false, has_overlay: true)
-    render partial: "shared/empty_alert", locals: { has_icon: has_icon, has_overlay: has_overlay }
+  def empty_alert_tag(has_icon: false, has_overlay: true, message: nil)
+    render partial: "shared/empty_alert", locals: { has_icon: has_icon, has_overlay: has_overlay, message: message }
   end
 
   def format_duration(sec)

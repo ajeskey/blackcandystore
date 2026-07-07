@@ -69,3 +69,6 @@ yarn-debug.log*
 # SQLite databases, WAL/SHM, and ActiveStorage blobs generated at runtime.
 # The mount directories are kept via .keep files; their contents are not committed.
 /docker/storage/
+
+# Local bundle install path (created when bundler is configured with a local path)
+/vendor/bundle/

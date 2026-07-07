@@ -21,6 +21,7 @@ class Song < ApplicationRecord
   has_one :content_fingerprint, dependent: :destroy
   has_many :playlists_songs
   has_many :playlists, through: :playlists_songs
+  has_many :playback_positions, dependent: :destroy
 
   attribute :is_favorited, :boolean
 
@@ -39,6 +40,14 @@ class Song < ApplicationRecord
 
   def lossless?
     bit_depth.present?
+  end
+
+  # A Resumable_Track is eligible for playback-position resume. This adapts the
+  # model to the pure ResumablePolicy seam, deriving audiobook status from the
+  # existing ContentClassifier via Album#audiobook? rather than a separate flag
+  # (Req 1.1, 1.4).
+  def resumable?
+    Playback::ResumablePolicy.resumable?(audiobook: album&.audiobook?, duration: duration)
   end
 
   private

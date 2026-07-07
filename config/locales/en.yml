@@ -18,6 +18,8 @@ en:
     home: 'Home'
     recently_added: 'Recently Added'
     recently_played: 'Recently Played'
+    continue_listening: 'Continue Listening'
+    no_continue_listening: 'No items to resume yet'
     library: 'Library'
     libraries: 'Libraries'
     new_library: 'New Library'
@@ -57,6 +59,7 @@ en:
     shuffle_mode: 'Shuffle mode'
     previous_song: 'Previous song'
     next_song: 'Next song'
+    start_from_beginning: 'Start from beginning'
     play_song: 'Play song'
     pause_song: 'Pause song'
     toggle_favorite: 'Toggle favorite'
@@ -81,6 +84,9 @@ en:
     no_search_results: "No search results for \"%{query}\""
     search_results_for: "Search results for \"%{query}\""
     go_to_artist: 'Go to Artist'
+    radio_stations: 'Radio Stations'
+    party_sessions: 'Party Sessions'
+    co_listen_sessions: 'Co-listen Sessions'
 
   button:
     login: 'Login'
